@@ -1,0 +1,83 @@
+## useDynLib(nextpot, .registration = TRUE)
+
+import(Renext)
+import(potomax)
+import(revdbayes)
+importFrom("dplyr", "filter")
+importFrom("tidyr", "gather")
+import(ggplot2)
+importFrom("reshape2", "melt")
+importFrom("Matrix", "invPerm")
+importFrom("scales", "trans_new")
+
+
+import("stats", except = c("filter"))
+import(graphics)
+## import(testthat)
+import(coda)
+import(nloptr)
+
+export(## RL,
+       ## dGPD2, pGPD2, qGPD2, rGPD2,
+       ## dCGPD, pCGPD, qCGPD, rCGPD,
+       credInt, formatLevel,
+       poisGPBayes,
+       ## poisGPML,
+       checkParNames,
+       GEVBayes0, poisGPBayes0,    ## Poor Man's Posteriors 
+       as.poisGPBayes0)
+
+## ============================================================================
+## Poor Man's Posteriors class "Bayes0": a virtual class from which
+## 'GEVBayes0' and 'poisGPBayes0' inherit.
+## ============================================================================
+
+S3method(coef, "Bayes0")
+S3method(vcov, "Bayes0")
+S3method(summary, "Bayes0")
+S3method(print, "Bayes0")
+S3method(print, "summary.Bayes0")
+
+S3method(predict, "poisGPBayes0")
+S3method(RL, "poisGPBayes0")
+
+## Class "GEVBayes0"
+## 
+S3method(predict, "GEVBayes0")
+S3method(RL, "GEVBayes0")
+
+## Class "poisGPBayes0"
+##
+S3method(predict, "poisGPBayes0")
+
+## ============================================================================
+## Class "poisGPML" : Poisson-GP by Maximum-Likelihood
+## ============================================================================
+
+## S3method(coef, "poisGPML")
+## S3method(vcov, "poisGPML")
+## S3method(autoplot, "poisGPML")
+## S3method(autoplot, "RL.poisGPML")
+## S3method(RL, "poisGPML")
+
+S3method(RL, "poisGPBayes")
+S3method(autoplot, "poisGPBayes")
+S3method(coef, "poisGPBayes")
+S3method(vcov, "poisGPBayes")
+S3method(summary, "poisGPBayes")
+
+
+S3method(as.poisGPBayes0, "poisGPBayes")
+S3method(predict, "poisGPBayes")
+
+S3method(autoplot, "RL.poisGPBayes")
+
+S3method(autoplot, "predRL")
+S3method(autoplot, "predRLList")
+
+## ============================================================================
+## For now the class "GEVBayes" does not even have a creator!
+## ============================================================================
+## S3method(RL, "GEVBayes")
+S3method(autoplot, "GEVBayes")
+S3method(autoplot, "RL.GEVBayes")

@@ -1,0 +1,17 @@
+Package: bever
+Type: Package
+Title: Bayes Extreme-Value  
+Version: 0.1.0
+Author: Yves Deville <deville.yves@alpestat.com>
+Maintainer: Yves Deville <deville.yves@alpestat.com>
+Description: Collection of functions to cope with Bayes Extreme-Value models
+    with various parameterisations. 
+License: NotSetYet
+Depends: Renext, potomax, nloptr, revdbayes, ggplot2
+Imports: Matrix, scales, dplyr, tidyr, reshape2, coda
+Suggests: testthat, numDeriv, knitr, ismev
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+VignetteBuilder: knitr
+

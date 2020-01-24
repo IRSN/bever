@@ -1,0 +1,146 @@
+## ****************************************************************************
+##' Create an object representing a Poisson-GP model with Maximum-Likelihood
+##' inference results.
+##'
+##' This function should in a future version allow the use of
+##' historical data as does the \code{Renouv} function of the package
+##' \bold{Renext}. So the formal arguments may be renamed. Note that
+##' the first argument is not \code{x} here and that \code{duration}
+##' is used to mean effective duration.
+##' 
+##' @title Poisson-GP Model with Maximum-Likelihood Inference Results
+##' 
+##' @param y Numeric vector conraining the marks.
+##'
+##' @param threshold The threshold.
+##'
+##' @param duration The duration of the observation periods in years.
+##'
+##' @param lowerGP,upperGP Bounds on the GP parameters.
+##'
+##' @param trace Level of verbosity.
+##'
+##' @return An object with S3 class \code{"poisGPBayes"}
+##'
+##' @seealso \code{\link{poisGPBayes}} to create comparable objects
+##' with Bayesian inference results.
+##'
+##' @note In order to avoid confusions, the \code{predict} method is
+##' not implemented for this class of object. Remind that although
+##' \strong{Renext} has a \code{predict} method for frequentist POT
+##' objects, it provides then classical Return Levels as computed by
+##' \code{\link{RL}} and not predictive RLs.
+##' 
+##' @examples
+##' ## ========================================================================
+##' ## Use the Garonne data from Renext
+##' ## ========================================================================
+##' fit <- poisGPML(y = Garonne$OTdata$Flow,
+##'                 threshold = Garonne$OTinfo$threshold,
+##'                 duration = Garonne$OTinfo$effDuration)
+##'
+##' ## ========================================================================
+##' ## Some methods
+##' ## ========================================================================
+##' class(fit)
+##' coef(fit)
+##' RL(fit)
+poisGPML <- function(y,
+                     threshold,
+                     duration,
+                     lowerGP = c("scale" = 0, "shape" = -0.9),
+                     upperGP = c("scale" = Inf, "shape" = Inf),
+                     trace = 0) {
+    
+
+    parNames <- c("lambda", "scale", "shape")
+    yOT <- y[y > threshold] - threshold
+    nOT <- length(yOT)
+
+    lower <- c("lambda" = 0, lowerGP)
+    upper <- c("lambda" = Inf, upperGP) 
+    
+
+    rlFun <- function(theta, period, deriv = 0) {
+        qGPD(p = 1 / theta[1] / period, loc = 0, scale = theta[2],
+             shape = par[3])
+    }
+    
+    
+    
+    logLikFun <- function(theta, deriv = FALSE, hessian = FALSE) {
+        logL <- 0.0
+        logL <- logL + dpois(nOT, lambda = theta[1] * duration, log = TRUE)
+
+        if (!deriv) {
+            logL <-  logL + sum(dGPD2(yOT, scale = theta[2], shape = theta[3],
+                                      log = TRUE, deriv = deriv, hessian = FALSE))
+        } else {
+
+            logDens <- dGPD2(yOT, scale = theta[2], shape = theta[3],
+                             log = TRUE, deriv = deriv, hessian = hessian)
+            logL <- sum(logDens)
+            grad <- apply(attr(logDens, "gradient"), MARGIN = 2, FUN = sum)
+            grad <- c(nOT / theta[1] - duration,  grad)
+            
+            attr(logL, "gradient") <-  grad
+            
+            if (hessian) {
+                hess <- array(0.0, dim = c(3, 3))  
+                hess[2:3, 2:3] <- apply(attr(logDens, "hessian"),
+                                        MARGIN = c(2, 3), FUN = sum)
+                hess[1, 1] <- -nOT / theta[1]^2
+                dimnames(hess) <- list(parNames, parNames)
+                attr(logL, "hessian") <-  hess
+            }
+        }
+        
+        logL
+    }
+    
+    negLogLikFun <- function(theta, deriv = FALSE, hessian = FALSE) {
+        
+        ll <- logLikFun(theta, deriv = deriv, hessian = hessian)
+
+        if (deriv) {
+            attr(ll, "gradient") <- -attr(ll, "gradient")
+            if (hessian) {
+                attr(ll, "hessian") <- -attr(ll, "hessian")
+            }
+        }
+
+        -ll
+    
+    }
+  
+    fit <- fGPD(x = yOT)
+
+    ## XXX need more work: check convergence, check that xiHat > -
+    ## 1/2, ...
+    
+    estimate <- c("lambda" =  nOT / duration, fit$estimate)
+    ll <- logLikFun(estimate, deriv = TRUE, hess = TRUE)
+    vcov <- -solve(attr(ll, "hessian"))
+    se <- sqrt(diag(vcov))
+    logLik <- ll[[1]]
+    negLogLik <- -logLik
+    
+    obj <- list(duration = duration,
+                y = y,
+                yOT = yOT,
+                nOT = nOT,
+                threshold = threshold,
+                rlFun = rlFun,
+                logLikFun = logLikFun,
+                negLogLikFun = negLogLikFun,
+                p = 3L,
+                estimate = estimate,
+                se = se,
+                vcov = vcov,
+                logLik = logLik, negLogLik = negLogLik)
+
+    class(obj) <- "poisGPML"
+
+    obj 
+    
+}
