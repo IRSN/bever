@@ -4,8 +4,8 @@
 ##'
 ##' @title Return Levels and Credible Intervals for a Poisson-GP Model
 ##'
-##' @param object An object with class \code{\link{poisGPBayes}} representing
-##' the inference results for a Poisson-GP model.
+##' @param object An object with class \code{\link{GEVBayes0}}
+##' representing the inference results for a GEV (block maxima) model.
 ##'
 ##' @param period A vector of periods for which the return levels will
 ##' be computed.
@@ -19,13 +19,55 @@
 ##'
 ##' @return An object with class \code{"RL.GEVBayes"} inheriting from
 ##' \code{"data.frame"}. 
+##' \itemize{
+##' \item{Period}{
+##' The Return Period. This is expressed in the same unit as the block
+##' duration that was given at the creation of \code{object} and which
+##' is stored as \code{object$blockDuration}. So if
+##' \code{blockDuration} is \code{2} (years) and \code{Period} is
+##' \code{100} (years), the Return Level is for \eqn{50} blocks.
+##' }
+##' \item{Prob}{
+##' The probability of exceedance of the Return Level for the
+##' considered period. This is \eqn{T / w^\star}{T / wStar} where \eqn{T}
+##' is the return period and \eqn{w^\star}{wStar} is the block duration.
+##' }
+##' \item{Level}{The credible level in formated form, e.g. \code{"95\%"} for
+##' a provided level of \code{0.95}.}
+##' \item{Mode, Median, Mean}{
+##' While \code{Median} and \code{Mean} are the median and mean of the
+##' return levels \eqn{\rho(T;\,\boldsymbol{\theta}^{[i]})}{\rho(T,
+##' \theta[i, ])} corresponding to the MCMC iterates
+##' \eqn{\boldsymbol{\theta}^{[i]}}{\theta[i, ]} of the GEV parameter
+##' vector \eqn{\boldsymbol{\theta}}{\theta}, the mode is obtained
+##' by plugging the MAP of the GEV parameter into the return level
+##' \eqn{\rho(T;\,\boldsymbol{\theta})}{\rho(T, \theta)}.  The
+##' corresponding Return Level curve can be called "modal".  If the
+##' MAP is not available in \code{object}, the corresponding column
+##' will contain \code{NA}.
+##' }
+##' \item{L, U}{
+##' The Lower and Upper bounds of the credible interval.
+##' }
+##' }
 ##'
+##' Note that when \eqn{m} is a small integer \eqn{>1} and \eqn{T = m w^\star}{T = m *
+##' wStar}, the given probability is not the
+##' probability that the maximum over \eqn{m} blocks with duration
+##' \eqn{w^\star}{wStar} exceeds the given level. This only holds when
+##' \eqn{m} is large. 
+##' 
+##' @references
+##' Chapter 3 of
+##'
+##' Coles S. (2001) \emph{An Introduction to Statistical Modeling of Extreme 
+##' Values}. Springer-Verlag.
 ##' 
 RL.GEVBayes0 <- function(object,
-                         period,
-                         level = 0.70,
-                         smooth = TRUE,
-                         ...) {
+                        period = NULL,
+                        level = 0.70,
+                        smooth = TRUE,
+                        ...) {
     
     eps <-  1e-4
     fLevel <- formatLevel(level)
@@ -36,7 +78,7 @@ RL.GEVBayes0 <- function(object,
              " colamnes c(\"loc\", \"scale\", \"rate\")")
     }
     
-    if (missing(period)) {
+    if (is.null(period)) {
         period <- c(1.8, 2, 5, 10, 20, 50, 75, 100,
                     125, 150, 175, 200, 250, 300, 500, 700, 1000)
     }
@@ -78,11 +120,13 @@ RL.GEVBayes0 <- function(object,
     }
     
     res <- as.data.frame(res)
-    res <- data.frame(Period = res$Period, Level = fLevel,
+    res <- data.frame(Period = res$Period,
+                      Prob = object$blockDuration / res$Period,
+                      Level = fLevel,
                       Mode = res$Mode, Median = res$Median, Mean = res$Mean,
                       L = res$L, U = res$U)
 
-    for (nm in c("nMax", "yMax", "estimate", "blockDuration")) {
+    for (nm in c("potData", "estimate", "blockDuration")) {
         attr(res, nm) <- object[[nm]]
     }
     

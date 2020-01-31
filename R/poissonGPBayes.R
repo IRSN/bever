@@ -1,28 +1,40 @@
 ## ****************************************************************************
 ##' Create an object representing a Poisson-GP model with Bayesian
 ##' inference result using the \strong{revdbayes} package.
+##'
+##'  @details
+##'  This function mainly relies on the \strong{revdbayes} package which
+##'  is used to produce the results of the Bayesian inference using
+##'  MCMC. However the Maximum A Posteriori (MAP) for the parameter
+##'  vector is computed by maximising the posterior function using a
+##'  numerical optimisation. This allows a better comparison with the
+##'  frequentist ML approach as used in
+##'  \code{\link[potomax]{poisGP}}.
+##'
+##' @usage
 ##' 
-##' This function mainly relies on the \pkg{revdbayes} package which
-##' is used to produce the results of the Bayesian inference using
-##' MCMC. However the Maximum A Posteriori (MAP) for the parameter
-##' vector is computed by maximising the posterior function using a
-##' numerical optimisation. This allows a better comparison with the
-##' frequentist ML approach as used in \code{\link{poisGPML}}.
+##' poisGPBayes(data, threshold, effDuration,
+##'             a0 = 1, b0 = 0,
+##'             priorGP = "flatflat",
+##'             lowerGP = c("scale" = 0, "shape" = -0.9),
+##'             upperGP = c("scale" = Inf, "shape" = Inf),
+##'             trace = 0) 
 ##' 
 ##' @title Poisson-GP Model with Bayesian Inference Results
 ##' 
-##' @param y Numeric vector containing the marks.
+##' @param data Numeric vector containing the marks. 
 ##'
 ##' @param threshold The threshold.
 ##'
-##' @param duration The duration of the observation period.
+##' @param effDuration The effective duration of the observation
+##' period.
 ##'
 ##' @param a0,b0 Shape and rate for a gamma prior on the Poisson rate
 ##' \code{lambda}. Note that by choosing \code{a0 = 1} and \code{b0 =
 ##' 0} we define an improper flat prior on \eqn{(0, \infty)}{(0,
-##' Inf)}. While \code{a0} is dimensionless and compares to \eqn{1 +} a
-##' number of observations, \code{b0} has the dimension of a duration
-##' and compares to an observation duration.
+##' Inf)}. While \code{a0} is dimensionless and compares to \eqn{1 +}
+##' a number of observations, \code{b0} has the dimension of a
+##' duration and compares to a duration of observation.
 ##'
 ##' @param priorGP A character defining which prior is used for the GP
 ##' part of the model as in the \bold{revdbayes} package.
@@ -33,15 +45,15 @@
 ##'
 ##' @return An object with S3 class \code{"poisGPBayes"}.
 ##'
-##' @seealso \code{\link{poisGPML}} for a comparable objec with
+##' @seealso \code{\link[potomax]{poisGP}} for a comparable object with
 ##' frequentist inference results.
 ##'
 ##' @examples
 ##' ## ========================================================================
 ##' ## Use the Garonne data from Renext
 ##' ## ========================================================================
-##' fit <- poisGPBayes(y = Garonne$OTdata$Flow,
-##'                    threshold = 2500, duration = 64)
+##' fit <- poisGPBayes(data = Garonne$OTdata$Flow,
+##'                    threshold = 2500, effDuration = 64)
 ##' 
 ##' ## ========================================================================
 ##' ## Some S3 methods: RL for Return Levels, ...
@@ -51,28 +63,55 @@
 ##' RL(fit)
 ##' autoplot(fit)
 ##' 
-poisGPBayes <- function(y,
-                        threshold,
-                        duration,
+poisGPBayes <- function(data, threshold, effDuration,
                         a0 = 1, b0 = 0,
                         priorGP = "flatflat",
                         lowerGP = c("scale" = 0, "shape" = -0.9),
                         upperGP = c("scale" = Inf, "shape" = Inf),
                         trace = 0) {
+
+
+    if (!is.finite(effDuration) || effDuration < 0.0) {
+        stop("'effDuration' must be a finite postive number")
+    }
+
+    if (inherits(data, "potData")) {
+        
+        if (!missing(effDuration) && (effDuration != data$OT$effDuration)) {
+            stop("Two different effective durations are  provided in 'effDuration' ",
+                 "and in 'data'")  
+        } else {
+            effDuration <- data$OT$effDuration
+        }
+        
+        yOT <- data[data$OTdata > threshold] - threshold
+        pd <- data
+        
+        
+    } else {
+        yOT <- data[data > threshold] - threshold
+        pd <- try(potomax::potData(data = data,
+                                   effDuration = effDuration),
+                  silent = TRUE)
+    }
     
-    yOT <- y[y > threshold] - threshold
+    if (inherits(pd, "try-error")) {
+        stop("No valid data to create a 'poisGPBayes' object")
+        pd <- NULL
+     }
+    
     nOT <- length(yOT)
+    
     an <- a0 + nOT
-    bn <- b0 + duration
+    bn <- b0 + effDuration
 
     priorObj <- set_prior(prior = priorGP, model = "gp",
                           min_xi = lowerGP["shape"])
 
-    
     postObj <- rpost_rcpp(n = 10000, model = "gp",
                           prior = priorObj,
                           thresh = threshold,
-                          data = y)
+                          data = data)
     
     ## manual transformation into a mcmc object
     MCMC <- mcmc(postObj$sim_vals[-(1:1000),  ])
@@ -106,7 +145,7 @@ poisGPBayes <- function(y,
     
     logLikFun <- function(par) {
         logL <- 0.0
-        logL <- logL + dpois(nOT, lambda = par[1] * duration, log = TRUE)
+        logL <- logL + dpois(nOT, lambda = par[1] * effDuration, log = TRUE)
         logL <-  logL + sum(dGPD(yOT, loc = 0,
                                  scale = par[2], shape = par[3],
                                  log = TRUE))
@@ -123,7 +162,7 @@ poisGPBayes <- function(y,
 
     ## fit <- fGPD(x = yOT)
     ## parSol <- c("lambda" = nOT / w, fit$estimate)
-    parIni <- c("lambda" = nOT / duration, "scale" = mean(yOT), "shape" = 0.0)
+    parIni <- c("lambda" = nOT / effDuration, "scale" = mean(yOT), "shape" = 0.0)
  
     opts <- list("algorithm" = "NLOPT_LN_COBYLA",
                  "ftol_abs" = 1e-3,
@@ -139,10 +178,9 @@ poisGPBayes <- function(y,
         MAP <- NULL
     }
     
-    obj <- list(duration = duration,
-                y = y,
-                yOT = yOT,
+    obj <- list(effDuration = effDuration,
                 nOT = nOT,
+                data = pd,
                 threshold = threshold,
                 a0 = a0,
                 b0 = b0,
@@ -162,7 +200,7 @@ poisGPBayes <- function(y,
     
 }
 
-##' *******************************************************************************
+## ***************************************************************************
 ##' Coercion method. 
 ##'
 ##' @title Coercion Method
@@ -182,9 +220,9 @@ as.poisGPBayes0.poisGPBayes <- function(object, ...) {
 
     poisGPBayes0(MCMC = object$MCMC,
                  threshold = object$threshold,
-                 obsDuration = object$duration,
+                 effDuration = object$effDuration,
                  nOT = object$nOT,
-                 yOT = object$yOT,
+                 data = object$data,
                  a0 = object$a0,
                  b0 = object$b0,
                  MAP = object$MAP,
@@ -195,9 +233,13 @@ as.poisGPBayes0.poisGPBayes <- function(object, ...) {
 ## ****************************************************************************
 ##' Prediction of a Bayesian Extreme-Value model of type Poisson-GP.
 ##'
-##' \code{object} is coerced into the \code{"poisGPBayes0"} simpler
-##' class for which the \code{predict} method is fully implemented.
+##' This method actually call \code{\link{predict.poisGPBayes0}}.
+##' \code{object} is first coerced into the \code{"poisGPBayes0"}
+##' simpler class for which the \code{predict} method is fully
+##' implemented.
 ##'
+##' @method predict poisGPBayes
+##' 
 ##' @title Predictive Quantiles or Return Levels for a EV Model
 ##' of class \code{"poisGPBayes"}.
 ##'
@@ -214,21 +256,40 @@ as.poisGPBayes0.poisGPBayes <- function(object, ...) {
 ##' @seealso \code{\link{predict.poisGPBayes0}}.
 ##' 
 predict.poisGPBayes <- function(object, ...) {
-    predict(as.poisGPBayes0(object, ...))
+    predict(as.poisGPBayes0(object), ...)
 }
 
+
 coef.poisGPBayes <- function(object, ...) {
-    coef(as.poisGPBayes0(object, ...))
+    coef.Bayes0(object, ...)
 }
 
 vcov.poisGPBayes <- function(object, ...) {
-    vcov(as.poisGPBayes0(object, ...))
+    vcov.Bayes0(object, ...)
 }
 
 summary.poisGPBayes <- function(object, ...) {
-    summary(as.poisGPBayes0(object, ...))
+    summary(as.poisGPBayes0(object), ...)
 }
 
+autoplot.poisGPBayes <- function(object,
+                                 which = "RL",
+                                 level = 0.70,
+                                 points = c("p", "none"),
+                                 a = 0.5,
+                                 ## allPoints = FALSE,
+                                 trace = 0,
+                                 ...) {
+    points <- match.arg(points)
+    autoplot(as.poisGPBayes0(object),
+             which = which,
+             level = level,
+             points = points,
+             a = a,
+             trace = trace,
+             ...)
+    
+}
 
 
 

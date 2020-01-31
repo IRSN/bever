@@ -1,6 +1,7 @@
 ## ****************************************************************************
 ##' Compute Return Levels and confidence or credible intervals on these.
 ##'
+##' 
 ##' @title Compute Return Levels using an Extreme-Value Model
 ##'
 ##' @param object An object representing an extreme-value model, i.e. 
@@ -12,9 +13,9 @@
 ##' @return An object containing the return levels such as an object
 ##' inheriting from \code{data.frame}.
 ##' 
-RL <- function(object, ...) {
-    UseMethod("RL", object)
-}
+## RL <- function(object, ...) {
+##     UseMethod("RL", object)
+## }
 
 ## *****************************************************************************
 ##' This method is typically used with a \code{poisGPBayes} object to

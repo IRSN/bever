@@ -1,3 +1,27 @@
+## ****************************************************************************
+##' Extract the coefficients of \code{Bayes0} model object.
+##
+##' @noRd
+##' 
+##' @title Extract the Coefficients of a \code{Bayes0} Model Object
+##' 
+##' @param object 
+##'
+##' @param type The type of coefficients to extract. Can be used to
+##' choose between the posterior mean, the posterior median and the
+##' posterior mode.
+##'
+##' @param ... 
+##'
+##' @return A matrix of coefficients.
+##'
+##' @section Caution: while the posterior mean is unambiguously
+##' defined, the posterior median and mode could be either
+##' \emph{marginal} or \emph{joint}.  The returned posterior median
+##' contains marginal medians, while the posterior mode (or MAP) is
+##' the joint mode. It may not be available in which case the
+##' corresponding elements will be \code{NA}.
+##' 
 coef.Bayes0 <- function(object,
                            type = c("all", "mean", "median", "mode"),
                            ...) {
@@ -45,19 +69,23 @@ summary.Bayes0 <- function(object, ...) {
 }
 
 print.summary.Bayes0 <- function(x, ...) {
+    
     cat(sprintf("%s Model Bayesian Inference\n", x$model))
     if (!is.null(x$blockDuration)) {
         cat(sprintf("o Block duration : %s\n",
                     format(x$blockDuration, digits = 2)))
     }
+
     ## automatically skipped when the slots do not exist
     cat(sprintf("o Number of OT observations: %d\n", x$nOT))
     if (!is.null(x$obsDuration)) {
         cat(sprintf("o Observation duration : %s\n",
                     format(x$obsDuration, digits = 2)))
     }
+
     cat(sprintf("o Number of blocks used: %d\n", x$nMax))    
     cat(sprintf("o Number of MCMC iterates: %d\n", nrow(x$MCMC)))
+
     ## cat(sprintf("   o MCMC iterates : %4.1f\n", x$blockDuration))
     co <- x$meanPost
     coText <- paste(format(co, digits = 2),

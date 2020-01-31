@@ -1,5 +1,5 @@
 ---
-title: "nextpot Package: User's Guide"
+title: "bever Package: User's Guide"
 author: "Yves Deville"
 date: "`r Sys.Date()`"
 output:
@@ -17,27 +17,33 @@ knitr::opts_chunk$set(
     cache = FALSE,
     fig.width = 6, fig.height = 4, fig.path = "Rgraphics/")
 KABLE <- TRUE
-library(nextpot)
-library(NSGEV)
+library(bever)
 library(ismev)
 ```
 
 		      
-This document was created with **nextpot** **`r packageVersion("nextpot")`**.
-As is the case for the whole package, this vignette is to be considered as a DRAFT
-version that still needs, checking, renaming, ...
+This document was created with **bever**
+**`r packageVersion("bever")`** and **potomax**
+**`r packageVersion("potomax")`**.  As is the case for the whole package,
+this vignette is to be considered as a DRAFT version that still needs,
+checking, renaming, ...
 
 # Introduction
 
 ## Goals
 
-This package is devoted to Extreme-Value models considered from the
-classical frequentist perspective or from the Bayesian perspective. It
-aims at producing classical graphics and diagnostics such as the
-Return Level plots and at comparing different approaches and different
-results. Although the package contains some functions dedicated to the
-estimation and inference of these models, the results can also be
-produced by using different R packages.
+The package **bever** is devoted to Extreme-Value models considered
+from the Bayesian perspective. It depends on the **potomax** package
+which consider the same models from a frequentist perspective with
+emphasis on the Maximum-Likelihood (ML) approach. So the two
+perspectives can be compared by using the same data and by producing
+similar results such as the classical Return-Level plots. So **bever**
+aims at producing these graphics and diagnostics. Although the package
+contains some functions dedicated to the estimation and inference of
+these Bayesian models, the results can also be produced by using
+Markov Chain Monte-Carlo with different R packages or even by using a
+sampling engine such as **JAGS** or **stan**.  **bever** will
+then essentially retain the MCMC iterates.
      
 ## Extreme-Value Models
 	
@@ -81,16 +87,24 @@ uses instead the the binomial-GP model `"binGP"`.
 Speaking of "models" as we did is somewhat abusive because the
 Point-Process or Poisson-GP models lead to the GEV block maxima model
 when they are aggregated in time, while the Block-Maxima or the Order
-Statistics models do not fully describe the extreme observation
-occurring within the blocks.  We can consider the `"GEV"` and
-`"OS"` models as derived from a POT model, either `"PP"` or `"poisGP"`.
-Indeed, we could consider `"GEV"` and "`OS"`models as resulting form a
-temporal aggregation from a POT model as implemented in the `Renouv`
-function of **Renext**. As a major difference between `"PP"` and
-`"poisGP"`, the parameters of `"poisGP"` relate to the threshold $u$,
-while those of `"PP"` do not.
-
-The models above will in the package be considered both from a
+Statistics models do not fully describe the extreme observations
+occurring within the blocks. These two later models do not provide a
+data generation process. We will consider the `"GEV"` and `"OS"`
+models as derived from a Poisson-GP process, either in its `"PP"` or
+in its `"poisGP"` parameterisation.  Indeed, we could consider `"GEV"`
+and "`OS"` models as resulting form a temporal aggregation from a POT
+model as implemented in the `Renouv` function of **Renext**. As a
+major difference between `"PP"` and `"poisGP"`, the parameters of
+`"poisGP"` relate to the threshold $u$, while those of `"PP"` do not.
+Of course, while the `"PP"` parameter vector $[\mu^\star,
+\sigma^\star, \xi^\star]$ do not depend on the threshold $u$, its
+estimate $[\widehat{\mu}^\star, \widehat{\sigma}^\star,
+\widehat{\xi}^\star]$ does depend on $u$ which controls the censoring
+of the observations. However it is that the estimate remains quite
+stable when the threshold is high enough and when there remains enough
+data.
+   
+The models above will in this vignette be considered both from a
 frequentist and from a Bayesian perspective. In the second case, the
 inference will generally be based on Markov Chain Monte-Carlo (MCMC).
     
@@ -129,10 +143,10 @@ is needed (Y) or not (N) depending on the type of object created.
    
 | Model    | Block duration |     Obs. duration    | Threshold |
 |:---------|:--------------:|:--------------------:|:---------:|
-|`GEV`|Y|(# blocks)|N|    
-|`OS`|Y|(# blocks)|N|
-|`poisGP`|N|Y|Y|
-|`PP`|Y|Y|Y|
+|`GEV`|Yes|(# blocks)|No|    
+|`OS`|Yes|(# blocks)|No|
+|`poisGP`|No|Yes|Yes|
+|`PP`|Yes|Yes|Yes|
 
 We can call an objects created from MCMC iterates *minimalist* or
 *poor man*'s posteriors. As shown later, they actually contain very
@@ -147,10 +161,10 @@ man's posteriors" will use several optional arguments.
 The current version focuses on *only two EV models*: GEV and Poisson-GP,
 and provides the following objects             
             
-| Model    | Freq. from data | Bayes from data | Bayes from MCMC|
-|:---------|:-----------:|:---------:|:--------:|
-|GEV| | |`GEVBayes0`|    
-|Poisson-GP|`poisGPML`|`poisGPBayes`|`poisGPBayes0`|
+| Model    | Bayes from data | Bayes from MCMC|
+|:---------|:---------:|:--------:|
+|GEV| |`GEVBayes0`|    
+|Poisson-GP|`poisGPBayes`|`poisGPBayes0`|
 
 So the convention is (for now) that "from MCMC" objects have names
 ending by `0` to suggest an impoverishment relative to the classical object.
@@ -253,7 +267,7 @@ resulting in a gamma posterior from which we can easily simulate.
 ```{r PoorMan_poisGP_2, message=FALSE}
 MCMCpoisGP <- cbind(lambda = rgamma(nSim, shape = 1 + nOT, rate = 0 + w),
                     postGP1$sim_vals)
-postGP0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, obsDuration = w) 
+postGP0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, effDuration = w) 
 summary(postGP0)
 coef(postGP0)
 ```
@@ -266,8 +280,8 @@ by using the `nOT` format argument, because this number is needed to
 determine the (gamma) posterior.
 
 ```{r PoorMan_poisGP_3, message=FALSE}
-postGP0b <- poisGPBayes0(MCMC = postGP1$sim_vals, threshold = u, obsDuration = w,
-                        nOT = nOT) 
+postGP0b <- poisGPBayes0(MCMC = postGP1$sim_vals, threshold = u,
+                         effDuration = w, nOT = nOT) 
 summary(postGP0b)
 coef(postGP0b)
 ```
@@ -280,7 +294,7 @@ $\lambda$.
 
 ### Note on Poor Man's Posteriors `*Bayes0`
    
-Remind that the parameters of the EV models considered in **nextpot**
+Remind that the parameters of the EV models considered in **bever**
 relate to the GEV distribution, except for the Poisson-GP model for
 which $\sigma$ and $\xi$ are the scale and the shape parameter of the
 Generalised Pareto Distribution.
@@ -292,7 +306,7 @@ classical EV packages such as **evd**, **ismev** or **extRemes**. The
 rate of the Poisson process in the Poisson-GP model is named
 `"lambda"`. Again, this conforms to the rule used in **Renext**.
 
-Since the **nextpot** package aims at "importing" MCMC iterates from
+Since the **bever** package aims at "importing" MCMC iterates from
 other R packages or software tools, it strives to understand several
 naming rules. For instance the parameter names used by **revdbayes**
 will be automatically translated into the names retained above. We
@@ -375,7 +389,7 @@ intervals on $\rho(T)$ in the Bayesian framework.
 - Finally we can display the observations used in the fit as "sample"
 points. This involves the use of suitable *plotting positions*.
 
-When using **nextpot**, this plot will be obtained by first calling
+When using **bever**, this plot will be obtained by first calling
 the `RL` method, then the `autoplot` method on the result which was
 produced by `RL`. The `autoplot` method produces a ggplot graphics
 object that can be modified. The three graphical elements above
@@ -383,29 +397,52 @@ described correspond to layers of the `ggplot` object.
 
 ### Illustration for Poisson-GP fitted models
    
-Consider first a frequentist fit using Garonne data from **Renext**   
+Consider first a frequentist fit using Garonne data from **Renext**.
+Since we aim at profile-likelihood inference on the return levels
+rather than the delta method, we will use the `protomax::poisGP`
+function to fit a frequentist Poisson-GP model
 
 ```{r GaronneML, message=FALSE}
-library(nextpot)
+library(bever)
 y <- Garonne$OTdata$Flow
 u <- Garonne$OTinfo$threshold
 w <- Garonne$OTinfo$effDuration
-gfitML <- poisGPML(y = y, threshold = u, duration = w)
+gfitML <- poisGP(data = y, threshold = u, effDuration = w)
 class(gfitML)
 coef(gfitML)
+confint(gfitML)
+autoplot(gfitML) +
+    ggtitle("Fitted Poisson-GP model for \"Garonne\"") + theme_gray()
 
 ```
+The `autoplot` S3 method produces a RL plot as a **ggplot2**
+graphics. The method used here is for the class `"poisGP"`. Note that
+it is easy to add or overwrite annotations, labels, ...
 	
+The RL plot is similar to the one that would be obtained with
+**Renext** but the confidence intervals are here obtained by
+profile-likelihood and not by the delta method. These intervals are
+usually asymmetric, and the Upper bound is usually larger than
+that obtained by the delta method.
+	
+The `RL` method can be used to compute the return levels frm an object
+with class "`poisGP`". This method then returns an object inheriting
+from the `"data.frame"` class which can again be used with `autoplot`.
+    
 ```{r GaronneML_RL1, message=FALSE}
 gRLML <- RL(gfitML, confintMethod = "proflik", trace = 0)
-tail(gRLML, n = 4)
+class(gRLML)
+tail(gRLML, n = 6)
 autoplot(gRLML) +
     ggtitle("Classical RL plot : frequentist POT for Garonne") + theme_gray()
 
 ```
 
+Now let use compare our frequentist results to those obtained with a
+Bayesian analysis of the same data
+	
 ```{r GaronneBayes_RL2, message=FALSE}
-gfitBayes <- poisGPBayes(y = y, threshold = u, duration = w)
+gfitBayes <- poisGPBayes(data = y, threshold = u, effDuration = w)
 class(gfitBayes)
 coef(gfitBayes)
 ```
@@ -415,11 +452,15 @@ $[\sigma, \, \xi]$ are assumed a priori independent and both have a
 vague prior: the flat gamma prior for $\lambda$ and the `"flatflat"`
 prior of **revdbayes** is used for the GP parameter. The posterior mode
 is quite close to the ML estimate.
-	
+
+As for the `"poisGP"` class the `RL` method can be used for the
+Bayesian objects classes `"poisGPBayes"` and `"poisGPBayes0"`
+   
 
 ```{r GaronneBayes_RL3, message=FALSE}
 gRLBayes <- RL(gfitBayes, trace = 0)
-tail(gRLBayes, n = 4)
+class(gRLBayes)
+tail(gRLBayes, n = 6)
 autoplot(gRLBayes) +
     ggtitle("Classical RL plot : Bayesian POT for Garonne") + theme_gray()
 
@@ -427,18 +468,20 @@ autoplot(gRLBayes) +
 
 Again the Bayesian RL plot is quite close to the frequentist one: the
 modal curve on the Bayesian RL is close to the quantile as estimated
-by ML, and the Bayesian credible intervals on quantiles are close to
-the profile-likelihood confidence interval for the same level (here
-$70\%$). Of course, the Bayesian RL plot would be different if an
-informative prior had been specified.
-
+by ML, and the Bayesian credible intervals on quantiles are quite
+close to the profile-likelihood confidence interval for the same level
+(here $70\%$), although the limits of the Bayesian intervals are lower
+than those of the frequentist ones for large return periods. Of
+course, the Bayesian RL plot would be different if an informative
+prior had been specified.
 	
 Note that for the $x$-axis we use a scale which depends on the type of
 model. For a `GEV` model a Gumbel scale should be used because the
 theoretical RL curve corresponding to a Gumbel distribution will then
-show as a straight line. For POT models `PP`or `poisGP` a logarithmic scale
-will be used because the theoretical RL curve corresponding to an exponential
-distribution will show as a straight line.
+show as a straight line. For POT models either `PP` or `poisGP` a
+logarithmic scale will be used because the theoretical RL curve
+corresponding to an exponential distribution will show as a straight
+line.
 
 ### Illustration for GEV models
 
@@ -458,14 +501,14 @@ beginning of the blocks. The RL plot is actually obtained by using the
 ```{r portpirieML_RL1, message=FALSE}	   
 df <- data.frame(Date = as.Date(paste0(1923:1987, "-01-01")),
                  SeaLev = portpirie)
-fitML <- TVGEV(data = df, date = "Date", response = "SeaLev") 
+fitML <- NSGEV::TVGEV(data = df, date = "Date", response = "SeaLev") 
 predML <- predict(fitML, newdate = "1987-01-01", level = 0.7)
 plot(predML)
 ```
 
 Since the Bayesian GEV model is available "on the shelf" in
 **revdbayes**, we will use this package, and then create a minimal
-posterior using `GEVBayes0` from **nextpot**. We reproduce here the
+posterior using `GEVBayes0` from **bever**. We reproduce here the
 three lines of code that were used before.
     
 ```{r portpirieBayes_RL1, message=FALSE}  
@@ -512,7 +555,7 @@ planned lifetime of an equipment.
 An exceedance probability $p$ could be associated to the multiple
 $1/p$ of $w^\star$ hence to a period - e.g. $p=0.001$ relates to the
 period $1000\, w^\star$. However, in order to avoid confusions,
-**nextpot** will not use periods as tickmarks for the $x$-axis of the
+**bever** will not use periods as tickmarks for the $x$-axis of the
 predictive RL plot.
 
 It makes sense to display on a same plot the predictive quantile curves
@@ -527,7 +570,7 @@ smaller quantile.
 	
 ### Illustration: Poisson-GP POT for `Garonne` data	
 	
-When using **nextpot**, this plot will be obtained by first calling
+When using **bever**, this plot will be obtained by first calling
 the standard `predict` method, then the `autoplot` method on the
 result which was produced by `predict`. Again, the `autoplot` method
 produces a ggplot graphics object that can be modified.
@@ -590,7 +633,7 @@ essentially a list. Since different kinds of models can be described,
 some "slots" or list elements can be `NULL`. For instance, the element
 `threshold` will be `NULL` when the model is `gev` or `os`.
 
-# XXX Questions on **nextpot** design
+# XXX Questions on **bever** design
 
 - What should return the `coef` method?
 

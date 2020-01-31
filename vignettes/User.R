@@ -4,8 +4,7 @@ knitr::opts_chunk$set(
     cache = FALSE,
     fig.width = 6, fig.height = 4, fig.path = "Rgraphics/")
 KABLE <- TRUE
-library(nextpot)
-library(NSGEV)
+library(bever)
 library(ismev)
 
 
@@ -44,46 +43,51 @@ head(postGP1$sim_vals, n = 3)
 ## ----PoorMan_poisGP_2, message=FALSE-------------------------------------
 MCMCpoisGP <- cbind(lambda = rgamma(nSim, shape = 1 + nOT, rate = 0 + w),
                     postGP1$sim_vals)
-postGP0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, obsDuration = w) 
+postGP0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, effDuration = w) 
 summary(postGP0)
 coef(postGP0)
 
 
 ## ----PoorMan_poisGP_3, message=FALSE-------------------------------------
-postGP0b <- poisGPBayes0(MCMC = postGP1$sim_vals, threshold = u, obsDuration = w,
-                        nOT = nOT) 
+postGP0b <- poisGPBayes0(MCMC = postGP1$sim_vals, threshold = u,
+                         effDuration = w, nOT = nOT) 
 summary(postGP0b)
 coef(postGP0b)
 
 
 ## ----GaronneML, message=FALSE--------------------------------------------
-library(nextpot)
+library(bever)
 y <- Garonne$OTdata$Flow
 u <- Garonne$OTinfo$threshold
 w <- Garonne$OTinfo$effDuration
-gfitML <- poisGPML(y = y, threshold = u, duration = w)
+gfitML <- poisGP(data = y, threshold = u, effDuration = w)
 class(gfitML)
 coef(gfitML)
+confint(gfitML)
+autoplot(gfitML) +
+    ggtitle("Fitted Poisson-GP model for \"Garonne\"") + theme_gray()
 
 
 
 ## ----GaronneML_RL1, message=FALSE----------------------------------------
 gRLML <- RL(gfitML, confintMethod = "proflik", trace = 0)
-tail(gRLML, n = 4)
+class(gRLML)
+tail(gRLML, n = 6)
 autoplot(gRLML) +
     ggtitle("Classical RL plot : frequentist POT for Garonne") + theme_gray()
 
 
 
 ## ----GaronneBayes_RL2, message=FALSE-------------------------------------
-gfitBayes <- poisGPBayes(y = y, threshold = u, duration = w)
+gfitBayes <- poisGPBayes(data = y, threshold = u, effDuration = w)
 class(gfitBayes)
 coef(gfitBayes)
 
 
 ## ----GaronneBayes_RL3, message=FALSE-------------------------------------
 gRLBayes <- RL(gfitBayes, trace = 0)
-tail(gRLBayes, n = 4)
+class(gRLBayes)
+tail(gRLBayes, n = 6)
 autoplot(gRLBayes) +
     ggtitle("Classical RL plot : Bayesian POT for Garonne") + theme_gray()
 
@@ -92,7 +96,7 @@ autoplot(gRLBayes) +
 ## ----portpirieML_RL1, message=FALSE--------------------------------------
 df <- data.frame(Date = as.Date(paste0(1923:1987, "-01-01")),
                  SeaLev = portpirie)
-fitML <- TVGEV(data = df, date = "Date", response = "SeaLev") 
+fitML <- NSGEV::TVGEV(data = df, date = "Date", response = "SeaLev") 
 predML <- predict(fitML, newdate = "1987-01-01", level = 0.7)
 plot(predML)
 

@@ -5,6 +5,21 @@
 ##'
 ##' @name CGPD
 ##' @rdname CGPD
+##' @aliases dCGPD pCGPD qCGPD rCGPD
+##' 
+##' @usage
+##' dCGPD(x, loc = 0.0, scale = 1.0, shape = 0.0,
+##'       scaleN, shapeN, EN, IDN, log = FALSE)
+##'
+##' pCGPD(q, loc = 0.0, scale = 1.0, shape = 0.0,
+##'       scaleN, shapeN, EN, IDN, lower.tail = TRUE)
+##' 
+##' qCGPD(p, loc = 0.0, scale = 1.0, shape = 0.0,
+##'       scaleN, shapeN, EN, IDN, lower.tail = TRUE)
+##' 
+##' rCGPD(n, loc = 0.0, scale = 1.0, shape = 0.0,
+##'       scaleN, shapeN, EN, IDN)
+##' 
 ##' 
 ##' @title Density, Distribution Function, Quantile Function and
 ##' Random Generation for the Five-Parameter Compound Generalized
@@ -138,15 +153,14 @@ dCGPD <- function(x, loc = 0.0, scale = 1.0, shape = 0.0,
     }
     ## this can be improved!!!
     if (any(!ind)) {
-        SY <- pGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind], lower.tail = FALSE)
-        fY <- dGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind])
-        res[!ind] <- dGPD2(SY, scale = scaleN[!ind], shape = shapeN[!ind]) * fY
+        SY <- potomax::pGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind], lower.tail = FALSE)
+        fY <- potomax::dGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind])
+        res[!ind] <- potomax::dGPD2(SY, scale = scaleN[!ind], shape = shapeN[!ind]) * fY
         if (log) res[!ind] <- log(res[!ind])
     }
     res
 }
 
-##' @rdname CGPD
 pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN, lower.tail = TRUE) {
@@ -174,7 +188,7 @@ pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
     scaleN <- rep(scaleN, length.out = n)
     shapeN <- rep(shapeN, length.out = n)
     
-    mass <- pGPD2(1.0, scale = scaleN, shape = shapeN, lower.tail = FALSE)
+    mass <- potomax::pGPD2(1.0, scale = scaleN, shape = shapeN, lower.tail = FALSE)
     res <- rep(NA, length(q))
     q1 <-  q - loc
     ind <- (q1 < 0.0)
@@ -182,9 +196,9 @@ pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
     if (any(ind)) res[ind] <- mass[ind]
     
     if (any(!ind)) {
-        S <- pGPD2(q1[!ind], scale = scale[!ind], shape = shape[!ind],
+        S <- potomax::pGPD2(q1[!ind], scale = scale[!ind], shape = shape[!ind],
                   lower.tail = FALSE)
-        res[!ind] <-  pGPD2(S, scale = scaleN[!ind], shape = shapeN[!ind],
+        res[!ind] <- potomax::pGPD2(S, scale = scaleN[!ind], shape = shapeN[!ind],
                             lower.tail = FALSE)
     }
     
@@ -193,7 +207,6 @@ pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
     
 }
 
-##' @rdname CGPD
 qCGPD <- function(p, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN, lower.tail = TRUE) {
@@ -221,22 +234,21 @@ qCGPD <- function(p, loc = 0.0, scale = 1.0, shape = 0.0,
     scaleN <- rep(scaleN, length.out = n)
     shapeN <- rep(shapeN, length.out = n)
     
-    mass <- pGPD2(1.0, scale = scaleN, shape = shapeN, lower.tail = FALSE)
+    mass <- potomax::pGPD2(1.0, scale = scaleN, shape = shapeN, lower.tail = FALSE)
     if (!lower.tail) p <- 1.0 - p
     res <- rep(NA, length(p))
     ind <- (p <= mass)
     if (any(ind)) res[ind] <- -Inf
     if (any(!ind)) {
-        q1 <- qGPD2(p[!ind], scale = scaleN[!ind], shape = shapeN[!ind],
+        q1 <- potomax::qGPD2(p[!ind], scale = scaleN[!ind], shape = shapeN[!ind],
                     lower.tail = FALSE)
-        res[!ind] <- loc[!ind] + qGPD2(q1, scale = scale[!ind], shape = shape[!ind],
+        res[!ind] <- loc[!ind] + potomax::qGPD2(q1, scale = scale[!ind], shape = shape[!ind],
                                   lower.tail = FALSE)
     }
     res
 
 }
 
-##' @rdname CGPD
 rCGPD <- function(n, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN) {

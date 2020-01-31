@@ -4,7 +4,12 @@
 ##'
 ##' In some applications, \code{dist} will be a specific distribution
 ##' within a parametric family. This can occur for instance when a
-##' conjugacy property holds. 
+##' conjugacy property holds.
+##' 
+##' @usage
+##' credInt(dist, level = 0.95,
+##'         type = c("HPD", "eqtail", "both"),
+##'         plot = FALSE, ...)
 ##' 
 ##' @title Find a Credible Interval for a Given Unimodal Probability
 ##' Distribution

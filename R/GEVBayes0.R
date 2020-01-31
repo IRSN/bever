@@ -4,21 +4,35 @@
 ##'
 ##' @title Create a Posterior for a GEV Model
 ##'
+##' @usage
+##'
+##' GEVBayes0(MCMC, blockDuration = 1.0,
+##'           MAP = NULL,
+##'           yMax = NULL,
+##'           nMax = length(yMax)) 
+##' 
 ##' @param MCMC An object that can be coerced into a matrix containing
 ##' the MCMC iterates. It should have the burnin period removed and be
 ##' thinned if necessary.
 ##'
 ##' @param blockDuration The block duration given as a single positive
-##' numeric value.
+##' numeric value. The GEV distribution which parameters are sampled
+##' in \code{MCMC} refers to the maximum on a period with duration
+##' \code{blockDuration}.
 ##' 
 ##' @param MAP An optional vector of Maximum A Posteriori for the
-##' parameter vector. Should be named with names matching the
-##' colnames of \code{MCMC}.
+##' parameter vector. Should be named with names matching the colnames
+##' of \code{MCMC}.
 ##'
 ##' @param yMax An optional vector of observations.
 ##'
-##' @param nMax An optional number of observation. Useful only when
+##' @param nMax An optional number of observations. Useful only when
 ##' \code{yMax} is not given.
+##'
+## @param potData an object of class \code{"potData"} describing the
+## data that have been used to produce the MCMC iterates. This object
+## can heterogeneous data with historical data. See
+## \code{\link[potomax]{potData}}.
 ##' 
 ##' @return An object with class \code{"GEVBayes0"} inheriting from
 ##' \code{"Bayes0"}. This object can be used to produce RL plots.
@@ -27,16 +41,28 @@
 ##' "classical" return levels (as shown on a classical RL plot),
 ##' \code{\link{predict.GEVBayes0}} to generate a data frame of
 ##' predictive return levels (as shown on a predictive RL plot).
-##
+##'
+##' @note The argument \code{yMax} is intended for the classical
+##' framework where block maxima are used corresponding to a constant
+##' block duration. This is equivalent to using the \code{potData}
+##' argument with the value
+##'
+##' \code{potData(MAX.data = as.list(yMax), MAX.effDuration =
+##' rep(blockDuration, length(yMax))}.
+##' 
 ##' @examples
 ##' require(revdbayes)
 ##' ## ========================================================================
-##' ## Portpirie data
+##' ## Portpirie data. Note that 'yMax' is only used for graphics later
 ##' ## ========================================================================
 ##' prior <- set_prior(prior = "flatflat", model = "gev")
 ##' post <- rpost_rcpp(n = 10000, model = "gev", prior = prior,
 ##'                        data = portpirie)
-##' postGEV0 <- GEVBayes0(MCMC = post$sim_vals)
+##' ## retrieve the MAP within the object
+##' MAP <- post$f_mode
+##' names(MAP) <- c("loc", "scale", "shape")
+##'
+##' postGEV0 <- GEVBayes0(MCMC = post$sim_vals, yMax = portpirie, MAP = MAP)
 ##'
 ##' ## ========================================================================
 ##' ## some methods
@@ -44,7 +70,21 @@
 ##' summary(postGEV0)
 ##' coef(postGEV0)
 ##' vcov(postGEV0)
-##' predict(postGEV0)
+##' 
+##' ## ========================================================================
+##' ## RL plot
+##' ## ========================================================================
+##' RL0 <- RL(postGEV0)
+##' autoplot(postGEV0) + ggtitle("GEV fit to Portpirie data")
+##' 
+##' ## ========================================================================
+##' ## predictive distribution
+##' ## ========================================================================
+##' pred <- predict(postGEV0)
+##' autoplot(pred) 
+##' autoplot(predict(postGEV0, newDuration = 100)) +
+##'     ggtitle("Prediction for a 'new' period of 100 years")
+##'
 GEVBayes0 <- function(MCMC,
                       blockDuration = 1.0,
                       MAP = NULL,
@@ -66,8 +106,15 @@ GEVBayes0 <- function(MCMC,
     nSim <- nrow(MCMC)
     
     colnames(MCMC) <- parNames <- cpn$parNames[cpn$indIn]
+
     nMax <- length(yMax)
-    if (nMax == 0) nMax <- NA
+    if (nMax == 0) {
+        pd <- NULL
+        yMax <- NULL
+    } else {
+        pd <- potomax::potData(MAX.data = as.list(yMax),
+                               MAX.effDuration = rep(blockDuration, nMax))
+    }
 
     meanPost <- apply(MCMC, 2, mean)
     sdPost <- apply(MCMC, 2, sd)
@@ -88,6 +135,7 @@ GEVBayes0 <- function(MCMC,
                 model = "GEV",
                 nMax = nMax,
                 yMax = yMax,
+                ## potData = pd,
                 meanPost = meanPost,
                 sdPost = sdPost,
                 medianPost = medianPost,
@@ -104,13 +152,23 @@ GEVBayes0 <- function(MCMC,
 ##' Model. The quantiles are those for the maximum on a "new" period
 ##' of time \code{newDuration} years.
 ##'
+##' @method predict GEVBayes0
+##'
+##' @usage
+##' \method{predict}{GEVBayes0}(object, newDuration = 1.0, prob,
+##'         type = "RL",
+##'         approx = FALSE,
+##'         trace = 0, ...)
+##' 
 ##' @title Predictive Quantiles or Return Levels for a GEV Model,
 ##' typically a Model for Block Maxima
 ##'
 ##' @param object a \code{GEVBayes0} object.
 ##' 
 ##' @param newDuration The duration of the 'new' period for which the
-##' maximum is to be predicted.
+##' maximum is to be predicted. The newduration is expressed by using
+##' the block duration in \code{object} as unit. So \code{newDuration
+##' = 10} means a duration of \code{10 * object$blockDuration}.
 ##' 
 ##' @param prob A vector of exceedance probabilities. The default
 ##' value contains such as \eqn{0.01} and \code{0.001}.
@@ -155,6 +213,8 @@ GEVBayes0 <- function(MCMC,
 ##' years and not not in block duration. Thus it sould be kept
 ##' constant when comparing Block Maxima models with different block
 ##' durations, e.g. one and two years.
+##'
+##' @seealso \code{\link{GEVBayes0}}
 ##'
 ##' 
 predict.GEVBayes0 <- function(object,
@@ -302,9 +362,11 @@ predict.GEVBayes0 <- function(object,
                                             Quant = quant))
         }
     }
-    res <- within(res, NewDuration <- factor(NewDuration)) 
-        
-    attr(res, "blockDuration") <-  object$blockDuration
+    res <- within(res, NewDuration <- factor(NewDuration))
+
+    attr(res, "yMax") <- object$yMax
+    attr(res, "newDuration") <- newDuration
+    attr(res, "blockDuration") <- object$blockDuration
     attr(res, "model") <- "GEV"
     class(res) <-  c("predRL", "data.frame")
     res

@@ -3,6 +3,7 @@
 import(Renext)
 import(potomax)
 import(revdbayes)
+importFrom("NSGEV", "dGEV", "pGEV", "qGEV", "rGEV")
 importFrom("dplyr", "filter")
 importFrom("tidyr", "gather")
 import(ggplot2)
@@ -10,19 +11,15 @@ importFrom("reshape2", "melt")
 importFrom("Matrix", "invPerm")
 importFrom("scales", "trans_new")
 
-
 import("stats", except = c("filter"))
 import(graphics)
 ## import(testthat)
 import(coda)
 import(nloptr)
 
-export(## RL,
-       ## dGPD2, pGPD2, qGPD2, rGPD2,
-       ## dCGPD, pCGPD, qCGPD, rCGPD,
-       credInt, formatLevel,
+export(credInt, formatLevel, quant2GEV,
+       dCGPD, pCGPD, qCGPD, rCGPD,
        poisGPBayes,
-       ## poisGPML,
        checkParNames,
        GEVBayes0, poisGPBayes0,    ## Poor Man's Posteriors 
        as.poisGPBayes0)
@@ -38,8 +35,6 @@ S3method(summary, "Bayes0")
 S3method(print, "Bayes0")
 S3method(print, "summary.Bayes0")
 
-S3method(predict, "poisGPBayes0")
-S3method(RL, "poisGPBayes0")
 
 ## Class "GEVBayes0"
 ## 
@@ -51,33 +46,48 @@ S3method(RL, "GEVBayes0")
 S3method(predict, "poisGPBayes0")
 
 ## ============================================================================
-## Class "poisGPML" : Poisson-GP by Maximum-Likelihood
+## Class "poisGPBayes0" 
 ## ============================================================================
 
-## S3method(coef, "poisGPML")
-## S3method(vcov, "poisGPML")
-## S3method(autoplot, "poisGPML")
-## S3method(autoplot, "RL.poisGPML")
-## S3method(RL, "poisGPML")
+## S3method(coef, "poisGPBayes0")        -> inherited from 'Bayes0'
+## S3method(vcov, "poisGPBayes0")        -> inherited from 'Bayes0'
+## S3method(summary, "poisGPBayes0")     -> TEMPORARILY inherited from 'Bayes0'
+S3method(predict, "poisGPBayes0")
+S3method(RL, "poisGPBayes0")
+S3method(autoplot, "poisGPBayes0")
 
-S3method(RL, "poisGPBayes")
-S3method(autoplot, "poisGPBayes")
-S3method(coef, "poisGPBayes")
-S3method(vcov, "poisGPBayes")
+S3method(as.poisGPBayes0, "poisGPBayes0")
+
+## ============================================================================
+## Class "poisGPBayes0". The methods are actually implemented for the class
+## "poisGPBayes0"
+## ============================================================================
+
+S3method(coef, "poisGPBayes") 
+S3method(vcov, "poisGPBayes") 
 S3method(summary, "poisGPBayes")
 
+S3method(predict, "poisGPBayes")
+S3method(RL, "poisGPBayes")
+S3method(autoplot, "poisGPBayes")
 
 S3method(as.poisGPBayes0, "poisGPBayes")
-S3method(predict, "poisGPBayes")
+
+## ============================================================================
+## Class "GEVBayes0". The methods are actually implemented for the class
+## "poisGPBayes0"
+## ============================================================================
+
+S3method(autoplot, "GEVBayes0")
+
+## ============================================================================
+## Methods for objects containing RL or predictions
+## ============================================================================
 
 S3method(autoplot, "RL.poisGPBayes")
+S3method(autoplot, "RL.GEVBayes")
 
+
+S3method(autolayer, "predRL")
 S3method(autoplot, "predRL")
 S3method(autoplot, "predRLList")
-
-## ============================================================================
-## For now the class "GEVBayes" does not even have a creator!
-## ============================================================================
-## S3method(RL, "GEVBayes")
-S3method(autoplot, "GEVBayes")
-S3method(autoplot, "RL.GEVBayes")

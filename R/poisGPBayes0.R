@@ -2,37 +2,75 @@
 ##' Create an object representing a "Poor Man's" Posterior for a
 ##' Poisson-GP model, mainly using MCMC iterates.
 ##'
-##' The Poisson-GP model involves three parameters: one is the rate
-##' \code{lambda} of the Poisson process describing the exceedances
-##' over the threshold. The two other parameters are the scale and the
-##' shape of the GP Distribution used for the excesses over the
-##' threshold.  The object MCMC can have either three columns or two
-##' columns only. In the second case, the column corresponding to the
-##' rate \code{lambda} is omitted; it is then assumed that
+##' @details The Poisson-GP model involves three parameters: one is
+##' the rate \code{lambda} of the Poisson process describing the
+##' exceedances over the threshold. The two other parameters are the
+##' scale and the shape of the GP Distribution used for the excesses
+##' over the threshold. The object MCMC can have either three columns
+##' or two columns only. In the second case, the column corresponding
+##' to the rate \code{lambda} is omitted; it is then assumed that
 ##' \code{lambda} is a posteriori independent of the GP parameters and
 ##' that it has a gamma posterior margin. The shape of the posterior
-##' distribution is \eqn{a_n :=a_0 + n_{\textrm{OT}}}{an = a0 + nOT}
-##' and the rate is \eqn{b_n :=b_0 + w_{\textrm{OT}}}{an = a0 + wOT},
-##' where \eqn{w_{\textrm{OT}}}{wOT} and \eqn{w_{\textrm{OT}}}{wOT} are
-##' the number of exceedances and the duration of the observation
+##' distribution is \eqn{a_n := a_0 + n_{\textrm{OT}}}{an = a0 + nOT}
+##' and the rate is \eqn{b_n := b_0 + w_{\textrm{OT}}}{an = a0 + wOT},
+##' where \eqn{w_{\textrm{OT}}}{wOT} and \eqn{w_{\textrm{OT}}}{wOT}
+##' are the number of exceedances and the duration of the observation
 ##' period.
+##'
+##' @usage
+##' poisGPBayes0(MCMC, threshold,
+##'              data = NULL, effDuration,
+##'              MAX.data = NULL, MAX.effDuration = NULL,
+##'              OTS.data = NULL, OTS.threshold = NULL, OTS.effDuration = NULL,
+##'              MAP = NULL,
+##'              nOT = NA,
+##'              a0 = 1.0, b0 = 0.0)
 ##' 
 ##' @title Create a Posterior for a Poisson-GP Model
 ##'
 ##' @param MCMC An object that can be coerced into a matrix containing
 ##' the MCMC iterates. It should have the burnin period removed and be
 ##' thinned if necessary.
+##' 
+##' @param data An optional structure containing the observations Over
+##' the Threshold. The user should make sure that these data are
+##' identical to those used to obtain \code{MCMC}. It can be a numeric
+##' vector or an object inheriting from one of the two classes
+##' \code{"Rendata"} (from \strong{Renext}) and \code{"potData"} (from
+##' \strong{potomax}) in which case it will be coerced into the class
+##' \code{"potData"}.
 ##'
 ##' @param threshold the POT threshold.
 ##' 
-##' @param obsDuration The observation duration.
+##' @param effDuration The observation effective duration. When
+##' \code{data} can be coerced into \code{potData}, the provided
+##' value for \code{effDuration} will be ignored and the value
+##' of \code{object$OT$effDuration} will be used instead.
+##'
+##' @param nOT An optional integer giving the number of exceedances
+##' during the observation period. This number is needed when
+##' \code{MCMC} does not have a column for the rate of the Poisson
+##' process. It should be consistent with \code{MCMC}.  When
+##' \code{data} can be coerced into \code{potData}, the provided value
+##' for \code{effDuration} will be ignored and the value of
+##' \code{length(object$OT$data)} will be used instead. However in
+##' this case no \code{MAX} or \code{OTS} data should exist in
+##' \code{data}.
+##'
+##' @param MAX.data,MAX.effDuration Optional censored data (type block
+##' maxima or \eqn{r}-largest) as used in
+##' \code{\link[potomax]{poisGP}}. Ignored if \code{data} inherits
+##' from one of the two classes \code{"Rendata"} and \code{"potData"}
+##'
+##' @param OTS.data,OTS.threshold,OTS.effDuration Optional censored
+##' data as used in \code{\link[potomax]{poisGP}}. Ignored if
+##' \code{data} inherits from one of the two classes \code{"Rendata"}
+##' and \code{"potData"}
+##'
 ##' 
 ##' @param MAP An optional vector of Maximum A Posteriori for the
 ##' parameter vector. Should be named with names matching the
 ##' colnames of \code{MCMC}.
-##'
-##' @param yOT An optional numeric vector containing the observations
-##' Over the Threshold. The should be consistent with \code{MCMC}.
 ##'
 ##' @param nOT An optional integer giving the number of exceedances
 ##' during the observation period. This number is needed when
@@ -49,6 +87,17 @@
 ##' "classical" return levels (as shown on a classical RL plot),
 ##' \code{\link{predict.poisGPBayes0}} to generate a data frame of
 ##' predictive return levels (as shown on a predictive RL plot).
+##'
+##' @section Caution: The user must be sure that the data provided by
+##' using the dedicated arguments are consistent with the MCMC
+##' iterates provided in \code{MCMC}. The 'data' dedicated arguments
+##' are: \code{data}, \code{effDuration} or/and \code{MAX.data},
+##' \code{MAX.effDuration} \code{OTS.data}, \code{OTS.threshold},
+##' \code{OTS.effDuration}. Since attaching data to the object is
+##' essentially for graphical purpose, it can be simpler not to attach
+##' the data and to create a separated object with class
+##' \code{"potData"}. This object can be used with its
+##' \code{autolayer} method.
 ##' 
 ##' @examples
 ##' require(revdbayes)
@@ -69,7 +118,9 @@
 ##' postGP <- rpost(n = 10000, model = "gp", prior = prior,
 ##'                 data = rainfall2, thresh = u)
 ##' MCMCGP <- postGP$sim_vals
-##'
+##' MAP <- postGP$f_mode
+##' names(MAP) <- c("scale", "shape")
+##' 
 ##' ## ========================================================================
 ##' ## assuming a "flat gamma prior" for 'lambda', add MCMC iterates
 ##' ## for 'lambda' to those existing for GP (new matrix column)
@@ -80,7 +131,7 @@
 ##' ## ========================================================================
 ##' ## create the object
 ##' ## ========================================================================
-##' post0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, obsDuration = w) 
+##' post0 <- poisGPBayes0(MCMC = MCMCpoisGP, threshold = u, effDuration = w) 
 ##' summary(post0)
 ##' coef(post0)
 ##'
@@ -93,23 +144,66 @@
 ##' ## create an object assuming 'lambda' independent of the GP param
 ##' ## ========================================================================
 ##' post1 <- poisGPBayes0(MCMC = MCMCGP, threshold = u,
-##'                       obsDuration = w, nOT = nOT)
+##'                       effDuration = w, nOT = nOT, MAP = MAP)
 ##' 
-poisGPBayes0 <- function(MCMC,
-                         threshold,
-                         obsDuration,
+poisGPBayes0 <- function(MCMC, threshold,
+                         data = NULL, effDuration,
+                         MAX.data = NULL, MAX.effDuration = NULL,
+                         OTS.data = NULL, OTS.threshold = NULL, OTS.effDuration = NULL, 
                          MAP = NULL,
-                         yOT = NULL,
                          nOT = NA,
                          a0 = 1.0, b0 = 0.0) {
-    
-    if (!is.finite(obsDuration) || obsDuration < 0.0) {
-        stop("'obsDuration' must be a finite postive number")
+
+    cd <- class(data)
+    if (inherits(data, "Rendata") || inherits(data, "potData")) {
+
+        pd <- as.potData(data)
+        
+        ## if (!missing(effDuration)) {
+        ##     if (effDuration != pd$OT$effDuration) {
+        ##         stop("Two different effective durations are provided in ",
+        ##              "'effDuration' and in 'data'")  
+        ##     }
+        ## }
+        if (!missing(effDuration) || !missing(nOT) || !missing(MAX.data) ||
+            !missing(MAX.effDuration) || !missing(OTS.data) || 
+            !missing(OTS.threshold) || !missing(OTS.effDuration)) {
+            warning("Since 'data' has class \"", cd, "\" the formal arguments ",
+                    "'effDuration', 'nOT', 'MAX.*' and 'OTS.*' are ignored")
+        }
+        
+        effDuration <- pd$OT$effDuration
+        nOT <- length(pd$OT$data)
+        
+    } else {
+
+        if (!is.finite(effDuration) || effDuration < 0.0) {
+            stop("'effDuration' must be a finite postive number")
+        }
+        
+        if (!is.null(data)) {
+
+            ## 'data' should be numeric here
+            
+            pd <- try(potomax::potData(data = data,
+                                       effDuration = effDuration,
+                                       MAX.data = MAX.data,
+                                       MAX.effDuration = MAX.effDuration,
+                                       OTS.data = OTS.data,
+                                       OTS.threshold = OTS.threshold,
+                                       OTS.effDuration = OTS.effDuration),
+                      silent = TRUE)
+        } else {
+            pd <- NULL
+        }
+        
     }
-    
-    if (!missing(yOT)) {
-        nOT <- length(yOT)
+
+    if (inherits(pd, "try-error")) {
+        warning("No valid data to attach to the 'poisGPBayes0' object")
+        pd <- NULL
     }
+              
 
     cpn <-  checkParNames(parNames = colnames(MCMC), model = "poisGP",
                           all = FALSE)
@@ -141,11 +235,18 @@ poisGPBayes0 <- function(MCMC,
                  "'lambda' is assumed to be a posteriori independent of the ",
                  "GP parameters with gamma marginal posterior.")
         }
+
+
+        if (!is.null(pd) && (pd$MAX$flag || pd$OTSflag)) {
+            stop("Since the provided data embed MAX or OTS blocks ",
+                 "the rate 'lambda' can not be a posteriori independent ",
+                 "of the GP parameters so it must have a column in 'MCMC'.")
+        }
         
         lambdaOut <- TRUE
 
         an <- a0 + nOT
-        bn <- b0 + obsDuration
+        bn <- b0 + effDuration
         
         meanPost <- c("lambda" = an / bn, apply(MCMC, 2, mean))
         sdPost <- c("lambda" = sqrt(an) / bn, apply(MCMC, 2, sd))
@@ -173,14 +274,12 @@ poisGPBayes0 <- function(MCMC,
         
     }
     
-
-    
     res <- list(MCMC = MCMC,
                 threshold = threshold,
-                obsDuration = obsDuration,
+                effDuration = effDuration,
                 model = "poisGP",
                 nOT = nOT,
-                yOT = yOT,
+                data = pd,
                 an = an,
                 bn = bn,
                 meanPost = meanPost,
@@ -212,6 +311,13 @@ poisGPBayes0 <- function(MCMC,
 ##' added to the matrix of MCMC iterates for the GP parameters, see
 ##' the \strong{Examples} section of the \code{\link{poisGPBayes0}}
 ##' page.
+##'
+##' @usage 
+##' \method{predict}{poisGPBayes0}(object, newDuration = 1.0, prob,
+##'         type = "RL",
+##'         approx = FALSE,
+##'         addLambda = !object$lambdaOut,
+##'         trace = 0, ...)
 ##' 
 ##' @title Predictive Quantiles or Return Levels for a EV Model
 ##' of type Poisson-GP
@@ -223,7 +329,7 @@ poisGPBayes0 <- function(MCMC,
 ##' maximum is to be predicted.
 ##' 
 ##' @param prob A vector of exceedance probabilities. The default
-##' value contains such as \code{0.01} and \code{0.001}.
+##' value contains probabilities such as \code{0.01} and \code{0.001}.
 ##' 
 ##' @param type The type of prediction wanted. Remind that the
 ##' \code{predict} method of the \strong{revdbayes} package uses this
@@ -341,9 +447,9 @@ predict.poisGPBayes0 <- function(object,
                 xiN <- 1 / nu
                 EN <- 1 / sigmaN
                 IDN <- 1 + xiN / sigmaN
-                mass <- pGPD2(1.0, scale = sigmaN, shape = xiN,
-                              lower.tail = FALSE)
-
+                mass <- potomax::pGPD2(1.0, scale = sigmaN, shape = xiN,
+                                       lower.tail = FALSE)
+                
                 iProbMax <- min(seq_along(prob)[prob < 1 - mass])
                 probMax <- prob[iProbMax]
                 probTestU <- c(0.900, 0.950, 0.975, 0.980, 0.990, 0.999, 0.9999)
@@ -516,3 +622,6 @@ predict.poisGPBayes0 <- function(object,
    
 }
 
+as.poisGPBayes0.poisGPBayes0 <- function(object, ...) {
+    object
+}

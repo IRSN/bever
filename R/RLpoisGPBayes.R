@@ -11,6 +11,8 @@
 ##' value for a given probability or period is (usually slightly)
 ##' different from the posterior marginal mode.
 ##'
+##' @method RL poisGPBayes
+##' 
 ##' @title Return Levels and Credible Intervals for a Poisson-GP Model
 ##'
 ##' @param object An object with class \code{\link{poisGPBayes}} representing
@@ -29,17 +31,26 @@
 ##' @return An object with class \code{"RL.poisGPBayes"} inheriting
 ##' from \code{"data.frame"}. 
 ##'
+##' @seealso The \code{\link[potomax]{RL}} generic function.
+##' 
 ##' @examples
-##' fit <- poisGPBayes(y = Garonne$OTdata$Flow,
-##'                    threshold = 2500, duration = 64)
+##' fit <- poisGPBayes(data = Garonne$OTdata$Flow,
+##'                    threshold = 2500,
+##'                    effDuration = Garonne$OTinfo$effDuration)
 ##' ## Return Levels
 ##' RL(fit)
 ##' autoplot(fit)
 RL.poisGPBayes <- function(object,
-                           period,
+                           period = NULL,
                            level = 0.70,
                            smooth = TRUE,
                            ...) {
+    
+    if (length(level) > 1) {
+        warning("'level' can only be of length 1 for now. ",
+                "Only the first element will considered")
+        level <- level[1]
+    }
     
     eps <-  1e-4
     fLevel <- formatLevel(level)
@@ -50,7 +61,7 @@ RL.poisGPBayes <- function(object,
              " colamnes c(\"lambda\", \"scale\", \"rate\")")
     }
     
-    if (missing(period)) {
+    if (is.null(period)) {
         period <- c(1.1, 1.5, 2, 5, 10, 20, 50, 75, 100,
                     125, 150, 175, 200, 250, 300, 500, 700, 1000)
     }
@@ -60,25 +71,32 @@ RL.poisGPBayes <- function(object,
     
     for (i in seq_along(period)) {
 
-        prov <- period[i] * object$MCMC[ , "lambda"]
-        x <- object$threshold + qGPD2(1 / prov,
-                                      scale = object$MCMC[ , "scale"],
-                                      shape = object$MCMC[ , "shape"],
-                                      lower.tail = FALSE)
-        
         res[i, "Period"] <- period[i]
-        ## res[i, "Level"] <- fLevel
-        res[i, "Mean"] <- mean(x)
+
+        prov <- period[i] * object$MCMC[ , "lambda"]
+        x <- rep(NA, length(prov))
+        ind <- (prov > 1.0)
+        
+        if (sum(ind) > nrow(object$MCMC) / 2) {
+            x[ind]  <- object$threshold + potomax::qGPD2(1 / prov[ind],
+                                                         scale = object$MCMC[ind, "scale"],
+                                                         shape = object$MCMC[ind , "shape"],
+                                                         lower.tail = FALSE)
+            
+            res[i, "Mean"] <- mean(x, na.rm = TRUE)
+            res[i, "Median"] <- median(x, na.rm = TRUE)
+            LU <- credInt(x[ind], level = level)
+            res[i, c("L", "U")] <- LU
+        }
+            
         if (!is.null(object$MAP)) {
             res[i, "Mode"] <- object$threshold +
-                qGPD2(1 / period[i] / object$MAP["lambda"],
+                potomax::qGPD2(1 / period[i] / object$MAP["lambda"],
                       scale = object$MAP["scale"], shape = object$MAP["shape"],
                       lower.tail = FALSE) 
             
         } 
-        res[i, "Median"] <- median(x)
-        LU <- credInt(x, level = level)
-        res[i, c("L", "U")] <- LU
+
     }
     
     if (smooth) {
@@ -93,7 +111,7 @@ RL.poisGPBayes <- function(object,
                       Mode = res$Mode, Median = res$Median, Mean = res$Mean,
                       L = res$L, U = res$U)
 
-    for (nm in c("nOT", "yOT", "estimate", "threshold")) {
+    for (nm in c("nOT", "data", "estimate", "threshold")) {
         attr(res, nm) <- object[[nm]]
     }
     
@@ -134,13 +152,30 @@ RL.poisGPBayes0 <- function(object,
                             smooth = TRUE,
                             ...) {
     
+    if (length(level) > 1) {
+        warning("'level' can only be of lenght 1 for now. ",
+                "Only the first element will considered")
+        level <- level[1]
+    }
+    
     ## Patch: could this be done in a better way? 
     if (object$lambdaOut) {
+        
+        if (is.na(object$nOT) || length(object$nOT) == 0) {
+            stop("Since 'lambda' is not sampled in the MCMC iterates ",
+                 "'object' must contain a valid 'nOT' element")
+        }
+        if (is.na(object$effDuration) || length(object$effDuration) == 0) {
+            stop("Since 'lambda' is not sampled in the MCMC iterates ",
+                 "'object' must contain a valid 'effDuration' element")
+        }
+        
         object$MCMC <-  cbind(lambda = rgamma(nrow(object$MCMC),
                                   shape = 1 + object$nOT,
-                                  rate = 0 + object$obsDuration),
+                                  rate = 0 + object$effDuration),
                               object$MCMC)
     }
-    RL.poisGPBayes(object, ...)
+    RL.poisGPBayes(object, level = level, ...)
     
 }
+
