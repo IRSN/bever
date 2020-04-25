@@ -93,18 +93,18 @@ autoplot(gRLBayes) +
 
 
 
-## ----portpirieML_RL1, message=FALSE--------------------------------------
-df <- data.frame(Date = as.Date(paste0(1923:1987, "-01-01")),
-                 SeaLev = portpirie)
-fitML <- NSGEV::TVGEV(data = df, date = "Date", response = "SeaLev") 
-predML <- predict(fitML, newdate = "1987-01-01", level = 0.7)
-plot(predML)
+## ----portpirieML_RL1, message=FALSE, warning=FALSE-----------------------
+fitp <- poisGP(MAX.data = as.list(portpirie),
+               MAX.effDuration=rep(1, length(portpirie)))
+autoplot(fitp) + theme_gray()
 
 
 ## ----portpirieBayes_RL1, message=FALSE-----------------------------------
 prior <- set_prior(prior = "flatflat", model = "gev")
 post <- rpost_rcpp(n = 10000, model = "gev", prior = prior, data = portpirie)
-pfitGEV0 <- GEVBayes0(MCMC = post$sim_vals, yMax = portpirie)
+MAPp <- post$f_mode
+names(MAPp) <- c("loc", "scale", "shape")
+pfitGEV0 <- GEVBayes0(MCMC = post$sim_vals, yMax = portpirie, MAP = MAPp)
 
 
 ## ----portpirieBayes_RL2, message=FALSE-----------------------------------
