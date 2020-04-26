@@ -1,12 +1,12 @@
 ---
-title: "bever Package: User's Guide"
+title: "The bever Package User Guide"
 author: "Yves Deville"
 date: "`r Sys.Date()`"
-output:
+output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{The bever Package Goals and Uses}
+  %\VignetteIndexEntry{The bever Package: User Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: bever.bib
@@ -21,7 +21,6 @@ KABLE <- TRUE
 library(bever)
 library(ismev)
 ```
-
 		      
 This document was created with **bever**
 **`r packageVersion("bever")`** and **potomax**
