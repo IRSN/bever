@@ -2,7 +2,7 @@ Package: bever
 Type: Package
 Title: Bayes Extreme-Value  
 Version: 0.1.1
-Date: 2020-04-25
+Date: 2020-04-26
 Author: Yves Deville <deville.yves@alpestat.com>
 Maintainer: Yves Deville <deville.yves@alpestat.com>
 Description: Collection of functions to cope with Bayes Extreme-Value models
