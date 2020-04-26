@@ -6,7 +6,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Goals and Uses}
+  %\VignetteIndexEntry{The bever Package Goals and Uses}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: bever.bib
@@ -131,16 +131,17 @@ While these "gentleman's rules" are retained in the package, we will
 in some cases allow the user to create fitted models objects by using
 results arising from other packages, as opposed to the usual fitting
 from data. For Bayesian fitted models, we will allow to create these
-from MCMC iterates as produced by other packages, possibly relying on
-sampling engines such as **JAGS** or **stan**. Doing so, the user is
-responsible for keeping track of the specific data that were used,
-these being no longer automatically duplicated into the fitted model
-object. However for each of the models defined above, there is a
-*minimal set of information* which must be given to allow the use of
-the model e.g. to derive predictions. Depending on the type of model,
-this involves: the *block duration*, the *observation duration* and
-possibly the *threshold*. The following table tells if an information
-is needed (Y) or not (N) depending on the type of object created.
+from a matrix of MCMC iterates as produced by other packages, possibly
+relying on sampling engines such as **JAGS** or **stan**. Doing so,
+the user is responsible for keeping track of the specific data that
+were used, these being no longer automatically duplicated into the
+fitted model object. However for each of the models defined above,
+there is a *minimal set of information* which must be given to allow
+the use of the model e.g. to derive predictions. Depending on the type
+of model, this involves: the *block duration*, the *observation
+duration* and possibly the *threshold*. The following table tells if
+an information is needed (Y) or not (N) depending on the type of
+object created.
    
 | Model    | Block duration |     Obs. duration    | Threshold |
 |:---------|:--------------:|:--------------------:|:---------:|
@@ -170,7 +171,34 @@ and provides the following objects
 So the convention is (for now) that "from MCMC" objects have names
 ending by `0` to suggest an impoverishment relative to the classical object.
 Note for the GEV model only the "from MCMC" option is available.
-	
+
+The motivate the use of Poor Man's Posterior (PMP), we can be
+interested in drawing a Return-Level plot (RL plot) from a fitted
+models, without caring for whether historical information was used or
+not. The base ingredient to create a PMP is *a matrix* say `MCMC`
+containing the MCMC iterates.
+
+### Creating Poor Man's Posteriors
+    
+The base ingredient to create a PMP is *a matrix* say `MCMC`
+containing the MCMC iterates.
+    
+- Except in very special cases where the posterior contains
+independent components, *the columns of `MCMC` should correspond to
+the parnames of the target model*.
+	    
+- The *required information pieces* for the model should be given, see
+above.
+
+For instance for a GEV model, the matrix `MCMC` must have three
+columns with suitable names; the block duration must be provided. The
+observation duration is not required but can be given. We can further
+give the observations which would allow display them on the RL plot.
+The allowed column names are `c("loc", "scale", "shape")`
+as in several packages like **evd** or `c("mu", "sigma", "xi")`
+as in **revdbayes**.
+    
+     
 ### Illustration: GEV model for `portpirie`
    
 Consider first fitting a GEV model for the `portpirie` data from **revdbayes**.
@@ -232,8 +260,7 @@ $$
 We could call an object such as `postGEV0` a *minimalist* or *poor
 man* s posterior. It actually contains very little more than what can
 be guessed from the matrix given in `MCMC`.
-
-
+   
 ### Illustration: Poisson-GP model for the `rainfall` data
 
 The creation of a Poor Man's Posterior for a Poisson-GP model is a bit
@@ -403,6 +430,7 @@ Since we aim at profile-likelihood inference on the return levels
 rather than the delta method, we will use the `protomax::poisGP`
 function to fit a frequentist Poisson-GP model
 
+
 ```{r GaronneML, message=FALSE}
 library(bever)
 y <- Garonne$OTdata$Flow
@@ -416,6 +444,7 @@ autoplot(gfitML) +
     ggtitle("Fitted Poisson-GP model for \"Garonne\"") + theme_gray()
 
 ```
+	
 The `autoplot` S3 method produces a RL plot as a **ggplot2**
 graphics. The method used here is for the class `"poisGP"`. Note that
 it is easy to add or overwrite annotations, labels, ...
@@ -501,7 +530,7 @@ blocks must be provided.
 	  
 ```{r portpirieML_RL1, message=FALSE, warning=FALSE}	   
 fitp <- poisGP(MAX.data = as.list(portpirie),
-               MAX.effDuration=rep(1, length(portpirie)))
+               MAX.effDuration = rep(1, length(portpirie)))
 autoplot(fitp) + theme_gray()
 ```
 
@@ -524,25 +553,26 @@ names.
 Then the RL plot is obtained as follows.
 	
 ```{r portpirieBayes_RL2, message=FALSE} 
-myRL <- RL(pfitGEV0) 
-autoplot(myRL) + ggtitle("Classical RL plot: Bayesian GEV for portpirie") +
+autoplot(pfitGEV0) + ggtitle("Classical RL plot: Bayesian GEV for portpirie") +
     theme_gray()
+myRL <- RL(pfitGEV0)
 ```
 	
 The plot can be compared to the one in Figure 3.5 in Coles' book
 [@Coles_ExtremeValues].
 	
 It can be seen that the frequentist and Bayesian results are quite
-close to each other. A quite subtle difference is that the Bayesian RL
-plot from **nexpot** uses a *Gumbel scale*, while that of **NSGEV**
-uses an *exponential scale*. The difference is mainly on the region
-corresponding to small return periods $T$, say for $T< 30$. Note that
-in order to display the "sample points", we have to pass these when
-creating the `GEVBayes0` object, using the `yMax` argument. We could
-have created an object without giving `yMax` but it would the no
-longer have been possible to show the sample points. Similarly, we could
-have used the `MAP` formal argument, because the MAP is not computed by
-`GEVBayes0`.
+close to each other, although the upper bound of the confidence and
+credibe intervals differ for the periods $>100$ years. A quite subtle
+difference is that the Bayesian RL plot from **nexpot** uses a *Gumbel
+scale*, while that of **NSGEV** uses an *exponential scale*. The
+difference is mainly on the region corresponding to small return
+periods $T$, say for $T< 30$. Note that in order to display the
+"sample points", we have to pass these when creating the `GEVBayes0`
+object, using the `yMax` argument. We could have created an object
+without giving `yMax` but it would the no longer have been possible to
+show the sample points. Similarly, we could have used the `MAP` formal
+argument, because the MAP is not computed by `GEVBayes0`.
 
 		     
 ## Predictive Return Level plot
@@ -597,29 +627,6 @@ autoplot(ppredGEV0) +
 
 ```
 
-      
-We can sometimes be interested in using MCMC inference results stored
-in matrix, ignoring the specific observations that were used. For
-instance we can be interested in a drawing a Return-Level plot (RL
-plot) from a fitted models, without caring for whether historical
-information was used or not. The base ingredient to create a PMP is *a
-matrix* say `MCMC` containing the MCMC iterates.
-
-### Creating Poor Man's Posteriors
-
-    
-- Except in very special cases where the posterior contains
-independent components, *the columns of `MCMC` should correspond to
-the parnames of the target model*.
-	    
-- The *required information pieces* for the model should be given, see
-above.
-
-For instance for a GEV model, the matrix `MCMC` must have three
-columns with suitable names; the block duration must be provided. The
-observation duration is not required but can be given. We can further
-give the observations which would allow display them on the RL plot.
-     
 
 # Relations to  other packages
 
