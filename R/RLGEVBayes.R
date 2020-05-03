@@ -10,6 +10,9 @@
 ##' @param period A vector of periods for which the return levels will
 ##' be computed.
 ##'
+##' @param credintType The type of credible interval wanted. See
+##' \code{\link{credInt}}.
+##' 
 ##' @param level The credible level 
 ##'
 ##' @param smooth Logical. If \code{TRUE} the bounds of the credible
@@ -64,11 +67,13 @@
 ##' Values}. Springer-Verlag.
 ##' 
 RL.GEVBayes0 <- function(object,
-                        period = NULL,
-                        level = 0.70,
-                        smooth = TRUE,
-                        ...) {
-    
+                         period = NULL,
+                         level = 0.70,
+                         credintType = c("HPD", "eqtail"),
+                         smooth = missing(period),
+                         ...) {
+
+    credintType <- match.arg(credintType)
     eps <-  1e-4
     fLevel <- formatLevel(level)
     
@@ -108,7 +113,7 @@ RL.GEVBayes0 <- function(object,
             
         } 
         res[i, "Median"] <- median(x)
-        LU <- credInt(x, level = level)
+        LU <- credInt(x, level = level, type = credintType)
         res[i, c("L", "U")] <- LU
     }
     

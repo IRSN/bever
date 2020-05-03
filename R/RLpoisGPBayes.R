@@ -21,7 +21,10 @@
 ##' @param period A vector of periods for which the return levels will
 ##' be computed.
 ##'
-##' @param level The credible level. 
+##' @param level The credible level.
+##'
+##' @param credintType The type of credible interval wanted. See
+##' \code{\link{credInt}}.
 ##'
 ##' @param smooth Logical. If \code{TRUE} the bounds of the credible
 ##' intervals are smoothed against the period.
@@ -43,8 +46,11 @@
 RL.poisGPBayes <- function(object,
                            period = NULL,
                            level = 0.70,
-                           smooth = TRUE,
+                           credintType = c("HPD", "eqtail"),
+                           smooth = missing(period),
                            ...) {
+
+    credintType <- match.arg(credintType)
     
     if (length(level) > 1) {
         warning("'level' can only be of length 1 for now. ",
@@ -85,7 +91,7 @@ RL.poisGPBayes <- function(object,
             
             res[i, "Mean"] <- mean(x, na.rm = TRUE)
             res[i, "Median"] <- median(x, na.rm = TRUE)
-            LU <- credInt(x[ind], level = level)
+            LU <- credInt(x[ind], level = level, type = credintType)
             res[i, c("L", "U")] <- LU
         }
             
@@ -139,6 +145,9 @@ RL.poisGPBayes <- function(object,
 ##'
 ##' @param level See  \code{\link{RL.poisGPBayes}}.
 ##'
+##' @param credintType The type of credible interval wanted. See
+##' \code{\link{credInt}}.
+##' 
 ##' @param smooth See \code{\link{RL.poisGPBayes}}.
 ##'
 ##' @param ... Other arguments to be passed to \code{\link{RL.poisGPBayes}}.
@@ -149,8 +158,11 @@ RL.poisGPBayes <- function(object,
 RL.poisGPBayes0 <- function(object,
                             period,
                             level = 0.70,
+                            credintType = c("HPD", "eqtail"),
                             smooth = TRUE,
                             ...) {
+
+    credintType <- match.arg(credintType)
     
     if (length(level) > 1) {
         warning("'level' can only be of lenght 1 for now. ",
@@ -175,7 +187,7 @@ RL.poisGPBayes0 <- function(object,
                                   rate = 0 + object$effDuration),
                               object$MCMC)
     }
-    RL.poisGPBayes(object, level = level, ...)
+    RL.poisGPBayes(object, level = level, credintType = credintType, ...)
     
 }
 

@@ -98,7 +98,9 @@ poisGPBayes <- function(data, threshold, effDuration,
     if (inherits(pd, "try-error")) {
         stop("No valid data to create a 'poisGPBayes' object")
         pd <- NULL
-     }
+    }
+    
+    pd <- threshData(threshold = threshold, data = pd, exceed = FALSE)
     
     nOT <- length(yOT)
     

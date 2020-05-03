@@ -5,7 +5,14 @@
 \title{Return Levels and Credible Intervals for a Poisson-GP Model 
 "Poor Man's version".}
 \usage{
-\method{RL}{poisGPBayes0}(object, period, level = 0.7, smooth = TRUE, ...)
+\method{RL}{poisGPBayes0}(
+  object,
+  period,
+  level = 0.7,
+  credintType = c("HPD", "eqtail"),
+  smooth = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{The \code{poisGPBayes0} object to use.}
@@ -13,6 +20,9 @@
 \item{period}{See  \code{\link{RL.poisGPBayes}}.}
 
 \item{level}{See  \code{\link{RL.poisGPBayes}}.}
+
+\item{credintType}{The type of credible interval wanted. See
+\code{\link{credInt}}.}
 
 \item{smooth}{See \code{\link{RL.poisGPBayes}}.}
 

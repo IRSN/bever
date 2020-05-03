@@ -4,7 +4,14 @@
 \alias{RL.GEVBayes0}
 \title{Return Levels and Credible Intervals for a Poisson-GP Model}
 \usage{
-\method{RL}{GEVBayes0}(object, period = NULL, level = 0.7, smooth = TRUE, ...)
+\method{RL}{GEVBayes0}(
+  object,
+  period = NULL,
+  level = 0.7,
+  credintType = c("HPD", "eqtail"),
+  smooth = missing(period),
+  ...
+)
 }
 \arguments{
 \item{object}{An object with class \code{\link{GEVBayes0}}
@@ -14,6 +21,9 @@ representing the inference results for a GEV (block maxima) model.}
 be computed.}
 
 \item{level}{The credible level}
+
+\item{credintType}{The type of credible interval wanted. See
+\code{\link{credInt}}.}
 
 \item{smooth}{Logical. If \code{TRUE} the bounds of the credible
 intervals are smoothed against the period.}

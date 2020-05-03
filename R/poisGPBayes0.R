@@ -193,18 +193,22 @@ poisGPBayes0 <- function(MCMC, threshold,
                                        OTS.threshold = OTS.threshold,
                                        OTS.effDuration = OTS.effDuration),
                       silent = TRUE)
+            
+            if (inherits(pd, "try-error")) {
+                warning("No valid data to attach to the 'poisGPBayes0' object")
+                pd <- NULL
+            }
+            
         } else {
             pd <- NULL
         }
         
     }
-
-    if (inherits(pd, "try-error")) {
-        warning("No valid data to attach to the 'poisGPBayes0' object")
-        pd <- NULL
+    
+    if (!is.null(pd)) {
+        pd <- threshData(threshold = threshold, data = pd, exceed = FALSE)   
     }
-              
-
+    
     cpn <-  checkParNames(parNames = colnames(MCMC), model = "poisGP",
                           all = FALSE)
     colnames(MCMC) <- parNames <- cpn$parNames[cpn$indIn]
@@ -607,6 +611,7 @@ predict.poisGPBayes0 <- function(object,
     res <- predict.GEVBayes0(GEVpost,
                              newDuration = newDuration,
                              type = "RL",
+                             prob = prob,
                              approx = approx)
     
     ## ========================================================================

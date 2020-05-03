@@ -563,16 +563,15 @@ The plot can be compared to the one in Figure 3.5 in Coles' book
 It can be seen that the frequentist and Bayesian results are quite
 close to each other, although the upper bound of the confidence and
 credibe intervals differ for the periods $>100$ years. A quite subtle
-difference is that the Bayesian RL plot from **nexpot** uses a *Gumbel
+difference is that the Bayesian RL plot from **bever** uses a *Gumbel
 scale*, while that of **NSGEV** uses an *exponential scale*. The
 difference is mainly on the region corresponding to small return
 periods $T$, say for $T< 30$. Note that in order to display the
-"sample points", we have to pass these when creating the `GEVBayes0`
-object, using the `yMax` argument. We could have created an object
-without giving `yMax` but it would the no longer have been possible to
-show the sample points. Similarly, we could have used the `MAP` formal
-argument, because the MAP is not computed by `GEVBayes0`.
-
+"sample points", we have to pass them as vector when creating the
+`GEVBayes0` object, using the `yMax` argument. We could have created
+an object without giving `yMax` but it would then no longer have been
+possible to show the sample points. Similarly, we could have used the
+`MAP` formal argument, because the MAP is not computed by `GEVBayes0`.
 		     
 ## Predictive Return Level plot
 
