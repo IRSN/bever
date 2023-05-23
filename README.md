@@ -32,7 +32,7 @@ This package is still in its early stage of development
 - For now it is possible to draw the predictive curve on the same
   graphics as the RL plot only for GEV models, not for Poisson-GP
   models. The reason is that some analysis is still required for the
-  transformation of plotting positions in “Renext style” tu use them in
+  transformation of plotting positions in “Renext style” to use them in
   “block style”.
 
 # INSTALLATION
