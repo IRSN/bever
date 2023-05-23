@@ -149,7 +149,8 @@
 poisGPBayes0 <- function(MCMC, threshold,
                          data = NULL, effDuration,
                          MAX.data = NULL, MAX.effDuration = NULL,
-                         OTS.data = NULL, OTS.threshold = NULL, OTS.effDuration = NULL, 
+                         OTS.data = NULL, OTS.threshold = NULL,
+                         OTS.effDuration = NULL, 
                          MAP = NULL,
                          nOT = NA,
                          a0 = 1.0, b0 = 0.0) {
@@ -451,8 +452,8 @@ predict.poisGPBayes0 <- function(object,
                 xiN <- 1 / nu
                 EN <- 1 / sigmaN
                 IDN <- 1 + xiN / sigmaN
-                mass <- potomax::pGPD2(1.0, scale = sigmaN, shape = xiN,
-                                       lower.tail = FALSE)
+                mass <- nieve::pGPD2(1.0, scale = sigmaN, shape = xiN,
+                                     lower.tail = FALSE)
                 
                 iProbMax <- min(seq_along(prob)[prob < 1 - mass])
                 probMax <- prob[iProbMax]

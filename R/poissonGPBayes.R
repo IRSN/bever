@@ -127,12 +127,13 @@ poisGPBayes <- function(data, threshold, effDuration,
     logPriorGPFun <- match.fun(paste0("gp_", priorGP))
 
     rlFun <- function(par, period, deriv = 0) {
-        qGPD(p = 1 / par[1] / period, loc = 0, scale = par[2], shape = par[3])
+        nieve::qGPD2(p = 1.0 / par[1] / period, scale = par[2],
+                     shape = par[3])
     }
     
     logPriorFun <- function(par) {
         if (b0 > 0) {
-            logPrior <-  dgamma(par[1], shape = a0, rate = b0, log = TRUE)
+            logPrior <- dgamma(par[1], shape = a0, rate = b0, log = TRUE)
         } else {
             logPrior <- 0.0
         }
@@ -148,9 +149,9 @@ poisGPBayes <- function(data, threshold, effDuration,
     logLikFun <- function(par) {
         logL <- 0.0
         logL <- logL + dpois(nOT, lambda = par[1] * effDuration, log = TRUE)
-        logL <-  logL + sum(dGPD(yOT, loc = 0,
-                                 scale = par[2], shape = par[3],
-                                 log = TRUE))
+        logL <-  logL + sum(nieve::dGPD2(yOT, 
+                                         scale = par[2], shape = par[3],
+                                         log = TRUE))
         logL
     }
 

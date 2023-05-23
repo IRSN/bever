@@ -435,7 +435,7 @@ library(bever)
 y <- Garonne$OTdata$Flow
 u <- Garonne$OTinfo$threshold
 w <- Garonne$OTinfo$effDuration
-gfitML <- poisGP(data = y, threshold = u, effDuration = w)
+gfitML <- potomax::poisGP(data = y, threshold = u, effDuration = w)
 class(gfitML)
 coef(gfitML)
 confint(gfitML)

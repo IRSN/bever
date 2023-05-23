@@ -95,7 +95,7 @@ RL.GEVBayes0 <- function(object,
 
         m <- period[i] / object$blockDuration
         
-        x <- NSGEV::qGEV(rep(1 / m, nrow(object$MCMC)),
+        x <- nieve::qGEV(rep(1 / m, nrow(object$MCMC)),
                          loc = object$MCMC[ , "loc"],
                          scale = object$MCMC[ , "scale"],
                          shape = object$MCMC[ , "shape"],
@@ -105,7 +105,7 @@ RL.GEVBayes0 <- function(object,
         res[i, "Mean"] <- mean(x)
         if (!is.null(object$MAP) && !any(is.na(object$MAP))) {
             res[i, "Mode"] <-
-                NSGEV::qGEV(1 / m,
+                nieve::qGEV(1 / m,
                             loc = object$MAP["loc"],
                             scale = object$MAP["scale"],
                             shape = object$MAP["shape"],

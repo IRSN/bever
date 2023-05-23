@@ -42,9 +42,9 @@
 ##'                 q = c(60, 80, 120), lower.tail = FALSE)
 ##'
 ##' ## check the result
-##' NSGEV::qGEV(p = c(0.1, 0.01, 0.001),
-##'           loc = co["loc"], scale = co["scale"], shape = co["shape"],
-##'           lower.tail = FALSE)
+##' nieve::qGEV(p = c(0.1, 0.01, 0.001),
+##'             loc = co["loc"], scale = co["scale"], shape = co["shape"],
+##'             lower.tail = FALSE)
 ##' 
 quant2GEV <- function(q, p, lower.tail = TRUE,
                       plot = FALSE, eps = 1e-7,

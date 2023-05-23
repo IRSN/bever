@@ -84,10 +84,10 @@ RL.poisGPBayes <- function(object,
         ind <- (prov > 1.0)
         
         if (sum(ind) > nrow(object$MCMC) / 2) {
-            x[ind]  <- object$threshold + potomax::qGPD2(1 / prov[ind],
-                                                         scale = object$MCMC[ind, "scale"],
-                                                         shape = object$MCMC[ind , "shape"],
-                                                         lower.tail = FALSE)
+            x[ind]  <- object$threshold + nieve::qGPD2(1 / prov[ind],
+                                                      scale = object$MCMC[ind, "scale"],
+                                                      shape = object$MCMC[ind , "shape"],
+                                                      lower.tail = FALSE)
             
             res[i, "Mean"] <- mean(x, na.rm = TRUE)
             res[i, "Median"] <- median(x, na.rm = TRUE)
@@ -97,7 +97,7 @@ RL.poisGPBayes <- function(object,
             
         if (!is.null(object$MAP)) {
             res[i, "Mode"] <- object$threshold +
-                potomax::qGPD2(1 / period[i] / object$MAP["lambda"],
+                nieve::qGPD2(1 / period[i] / object$MAP["lambda"],
                       scale = object$MAP["scale"], shape = object$MAP["shape"],
                       lower.tail = FALSE) 
             

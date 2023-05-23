@@ -8,10 +8,10 @@ Maintainer: Yves Deville <deville.yves@alpestat.com>
 Description: Collection of functions to cope with Bayes Extreme-Value models
     with various parameterisations. 
 License: GPL-3
-Depends: Renext (>= 3.1-2), potomax (>= 0.1.2), nloptr, revdbayes, ggplot2
-Imports: NSGEV, Matrix, scales, dplyr, tidyr, reshape2, coda
-Suggests: testthat, numDeriv, knitr, rmarkdown, ismev
+Depends: nieve (>= 0.1.2), potomax (>= 0.1.2), nloptr, revdbayes, ggplot2
+Imports: Matrix, scales, dplyr, tidyr, reshape2, coda
+Suggests: Renext (>= 3.1-2), testthat, numDeriv, knitr, rmarkdown, ismev
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2.9000
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr

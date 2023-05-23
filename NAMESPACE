@@ -1,9 +1,10 @@
 ## useDynLib(nextpot, .registration = TRUE)
 
-import(Renext)
+## import(Renext)
 import(potomax)
 import(revdbayes)
-importFrom("NSGEV", "dGEV", "pGEV", "qGEV", "rGEV")
+importFrom("nieve", "dGEV", "pGEV", "qGEV", "rGEV")
+importFrom("nieve", "dGPD2", "pGPD2", "qGPD2", "rGPD2")
 importFrom("dplyr", "filter")
 importFrom("tidyr", "gather")
 import(ggplot2)
@@ -35,7 +36,6 @@ S3method(summary, "Bayes0")
 S3method(print, "Bayes0")
 S3method(print, "summary.Bayes0")
 
-
 ## Class "GEVBayes0"
 ## 
 S3method(predict, "GEVBayes0")
@@ -49,8 +49,8 @@ S3method(predict, "poisGPBayes0")
 ## Class "poisGPBayes0" 
 ## ============================================================================
 
-## S3method(coef, "poisGPBayes0")        -> inherited from 'Bayes0'
-## S3method(vcov, "poisGPBayes0")        -> inherited from 'Bayes0'
+## S3method(coef, "poisGPBayes0")        -> inherited from 'Bayes0'
+## S3method(vcov, "poisGPBayes0")        -> inherited from 'Bayes0'
 ## S3method(summary, "poisGPBayes0")     -> TEMPORARILY inherited from 'Bayes0'
 S3method(predict, "poisGPBayes0")
 S3method(RL, "poisGPBayes0")

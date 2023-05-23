@@ -64,7 +64,7 @@ credInt <- function(dist, level = 0.95,
     alpha <- 1 - level
     type <- match.arg(type)
     
-    if (class(dist) == "density") {
+    if (inherits(dist, "density")) {
         
         d <- function(x) {
             approx(x = dist$x, y = dist$y, xout = x)$y
@@ -78,13 +78,13 @@ credInt <- function(dist, level = 0.95,
 
         Ldots <- list()
         
-    } else if (class(dist) == "character") {
+    } else if (inherits(dist, "character")) {
 
         q <- match.fun(paste0("q", dist))
         d <- match.fun(paste0("d", dist))
         Ldots <- list(...)
         
-    } else if (class(dist) == "numeric") {
+    } else if (inherits(dist, "numeric")) {
         
         q <- function(prob) {
             quantile(x = dist, prob = prob) 

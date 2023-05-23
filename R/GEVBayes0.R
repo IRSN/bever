@@ -233,7 +233,8 @@ predict.GEVBayes0 <- function(object,
                   0.010, 0.008, 0.005, 0.004, 0.003, 0.002, 0.001)
     } else {
         if (any(prob < 0.0) || any(prob > 1.0)) {
-            stop("'prob' must be a numeric vector with values between 0.0 and 1.0")
+            stop("'prob' must be a numeric vector with values between ",
+                 "0.0 and 1.0")
         }
         prob <- sort(prob, decreasing = TRUE)
     }
@@ -255,13 +256,13 @@ predict.GEVBayes0 <- function(object,
 
         quant <- rep(NA, nProb)
         
-        ## =======================================================================
+        ## ======================================================================
         ## The posterior cumulative distribution function 
-        ## =======================================================================
+        ## ======================================================================
         FTilde <- function(q) {
             res <- rep(NA, length(q))
             for (i in seq_along(res)) {
-                res[i] <- mean(NSGEV::pGEV(q = q[i],
+                res[i] <- mean(nieve::pGEV(q = q[i],
                                            loc = object$MCMC[ , 1],
                                            scale = object$MCMC[ , 2],
                                            shape = object$MCMC[ , 3],
@@ -273,12 +274,13 @@ predict.GEVBayes0 <- function(object,
             cat("Finding quantiles 'qL' and 'qU' corresponding to the greatest",
                 " and the smallest exceedance probability.\n")
         }
+        
         OKL <- OKU <-  FALSE
         
         for (i in seq_along(probTestU)) {
 
             if (!OKU) {
-                yU <- quantile(NSGEV::qGEV(p = min(prob) / mStar[iY],
+                yU <- quantile(nieve::qGEV(p = min(prob) / mStar[iY],
                                            loc = object$MCMC[ , 1],
                                            scale = object$MCMC[ , 2],
                                            shape = object$MCMC[ , 3],
@@ -286,15 +288,16 @@ predict.GEVBayes0 <- function(object,
                                prob = probTestU[i])
             }
             if (!OKL) { 
-                yL <- quantile(NSGEV::qGEV(p = max(prob) / mStar[iY],
+                yL <- quantile(nieve::qGEV(p = max(prob) / mStar[iY],
                                            loc = object$MCMC[ , 1],
                                            scale = object$MCMC[ , 2],
                                            shape = object$MCMC[ , 3],
                                            lower.tail = FALSE),
                                prob = probTestL[i])
             }
+            
             if (!OKU) {
-                qU <- try(uniroot(f = function(q) {FTilde(q) - 1 + min(prob)},
+                qU <- try(uniroot(f = function(q) { FTilde(q) - 1 + min(prob) },
                                   interval = c(yL, yU)),
                           silent = TRUE)
                 if (!inherits(qU, "try-error") && qU$estim.prec < 1e-4) {
@@ -308,6 +311,7 @@ predict.GEVBayes0 <- function(object,
                 
                 
             }
+            
             if (!OKL) {
                 qL <- try(uniroot(f = function(q) {FTilde(q) - 1 + max(prob)},
                                   interval = c(yL, yU)),
