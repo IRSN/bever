@@ -4,4 +4,4 @@
 ## Structure
 
 - [ ] Change the **roxygen2** documentation in order to generate the
-  `NAMESPACE` from the suitable fields.
+  `NAMESPACE` file from the suitable fields.
