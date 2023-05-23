@@ -1,9 +1,9 @@
-README
+THe bever Package
 ================
 Yves Deville
 2023-05-22
 
-# The bever package
+# Description
 
 The **bever** package is a R package funded by IRSN/Behrig.
 
@@ -13,9 +13,9 @@ not implement by itself the Bayesian estimation or inference of any EV
 model. These tasks are left to the **revdbayes** package or to some
 other MCMC sampler as can be implemented by using **JAGS** or **Stan**.
 The **bever** package aims at producing some classical results or plots
-such as Return Level tables or plots. Its goal is to allow a comparison
-of the frequentist and Bayesian inference methods when applied to EV
-models.
+such as Return Level tables or plots. Its main goal is to allow a
+comparison of the frequentist and Bayesian inference methods when
+applied to EV models.
 
 The name **bever** relates to **B**ayes **E**xtreme-**V**alue. In some
 modern or ancient European languages, the word relates to the *river*
