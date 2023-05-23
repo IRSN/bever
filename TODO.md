@@ -3,5 +3,5 @@
 
 ## Structure
 
-- [] Change the **roxygen2** documentation in order to generate the
+- [ ] Change the **roxygen2** documentation in order to generate the
   `NAMESPACE` from the suitable fields.
