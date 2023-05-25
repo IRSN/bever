@@ -3,20 +3,21 @@
 \name{autoplot.RL.poisGPBayes}
 \alias{autoplot.RL.poisGPBayes}
 \title{\code{autoplot} Method for the \code{"RL.poisGPBayes"} S3
-Class}
+    Class}
 \usage{
 \method{autoplot}{RL.poisGPBayes}(object, ...)
 }
 \arguments{
 \item{object}{An object with class \code{"RL.poisGPBayes"}
-describing Return Levels and related Bayesian inference results
-for a Poisson-GP model.}
+describing Return Levels and related Bayesian inference
+results for a Poisson-GP model.}
 
 \item{...}{Further arguments passed to \code{RL}.}
 }
 \value{
 An object with class \code{"gg"} inheriting from
-\code{"ggplot"}, typically used through the \code{print} method.
+    \code{"ggplot"}, typically used through the \code{print}
+    method.
 }
 \description{
 Autoplot an object with class \code{"RL.poisGPBayes"} containing

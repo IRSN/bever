@@ -98,6 +98,8 @@
 ##' the data and to create a separated object with class
 ##' \code{"potData"}. This object can be used with its
 ##' \code{autolayer} method.
+##'
+##' @export
 ##' 
 ##' @examples
 ##' require(revdbayes)
@@ -628,6 +630,8 @@ predict.poisGPBayes0 <- function(object,
    
 }
 
+##' @export
+##' @noRd
 as.poisGPBayes0.poisGPBayes0 <- function(object, ...) {
     object
 }

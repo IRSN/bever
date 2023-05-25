@@ -35,6 +35,8 @@
 ##'
 ##' Coles S. and Tawn J. (1996). A Bayesian Analysis of Extreme
 ##' Rainfall Data \emph{Appl. Statist.} 45 (4), pp. 463-478.
+##'
+##' @export
 ##' 
 ##' @examples
 ##'

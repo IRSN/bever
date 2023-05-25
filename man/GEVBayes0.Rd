@@ -11,17 +11,17 @@ GEVBayes0(MCMC, blockDuration = 1.0,
 }
 \arguments{
 \item{MCMC}{An object that can be coerced into a matrix containing
-the MCMC iterates. It should have the burnin period removed and be
-thinned if necessary.}
+the MCMC iterates. It should have the burnin period removed
+and be thinned if necessary.}
 
 \item{blockDuration}{The block duration given as a single positive
-numeric value. The GEV distribution which parameters are sampled
-in \code{MCMC} refers to the maximum on a period with duration
-\code{blockDuration}.}
+numeric value. The GEV distribution which parameters are
+sampled in \code{MCMC} refers to the maximum on a period with
+duration \code{blockDuration}.}
 
 \item{MAP}{An optional vector of Maximum A Posteriori for the
-parameter vector. Should be named with names matching the colnames
-of \code{MCMC}.}
+parameter vector. Should be named with names matching the
+colnames of \code{MCMC}.}
 
 \item{yMax}{An optional vector of observations.}
 
@@ -30,7 +30,7 @@ of \code{MCMC}.}
 }
 \value{
 An object with class \code{"GEVBayes0"} inheriting from
-\code{"Bayes0"}. This object can be used to produce RL plots.
+    \code{"Bayes0"}. This object can be used to produce RL plots.
 }
 \description{
 Create a "Poor Man's" Posterior for a GEV model using MCMC
@@ -38,9 +38,9 @@ iterates.
 }
 \note{
 The argument \code{yMax} is intended for the classical
-framework where block maxima are used corresponding to a constant
-block duration. This is equivalent to using the \code{potData}
-argument with the value
+    framework where block maxima are used corresponding to a
+    constant block duration. This is equivalent to using the
+    \code{potData} argument with the value
 
 \code{potData(MAX.data = as.list(yMax), MAX.effDuration =
 rep(blockDuration, length(yMax))}.
@@ -83,7 +83,7 @@ autoplot(predict(postGEV0, newDuration = 100)) +
 }
 \seealso{
 \code{\link{RL}} method to generate a data frame of
-"classical" return levels (as shown on a classical RL plot),
-\code{\link{predict.GEVBayes0}} to generate a data frame of
-predictive return levels (as shown on a predictive RL plot).
+    "classical" return levels (as shown on a classical RL plot),
+    \code{\link{predict.GEVBayes0}} to generate a data frame of
+    predictive return levels (as shown on a predictive RL plot).
 }

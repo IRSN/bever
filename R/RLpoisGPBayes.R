@@ -35,6 +35,9 @@
 ##' from \code{"data.frame"}. 
 ##'
 ##' @seealso The \code{\link[potomax]{RL}} generic function.
+##'
+##' @method RL poisGPBayes
+##' @export
 ##' 
 ##' @examples
 ##' fit <- poisGPBayes(data = Garonne$OTdata$Flow,
@@ -155,6 +158,8 @@ RL.poisGPBayes <- function(object,
 ##' @return An object with class \code{"RL.poisGPBayes"} inheriting
 ##' from \code{"data.frame"}.
 ##'
+##' @method RL.poisGPBayes0
+##' @export
 RL.poisGPBayes0 <- function(object,
                             period,
                             level = 0.70,

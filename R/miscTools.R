@@ -42,6 +42,8 @@
 ##' to get the density, the distribution and the quantile
 ##' functions. The values of the parameters can passed through the
 ##' dots \dots See \bold{Examples}.
+##'
+##' @export
 ##' 
 ##' @examples
 ##' credInt("gumbel", level = 0.95, plot = TRUE)
@@ -177,6 +179,8 @@ credInt <- function(dist, level = 0.95,
 ##'
 ##' @return A character vector.
 ##'
+##' @export
+##' 
 ##' @examples
 ##' formatLevel(c(0.70, 0.95))
 formatLevel <- function(level) {

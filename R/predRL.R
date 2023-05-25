@@ -34,6 +34,9 @@
 ##' @seealso \code{\link{autoplot.predRLList}} to compare predictive
 ##' plots: for several predicted durations, several priors, several
 ##' datasets, ...
+##'
+##' @method autoplot predRL
+##' @export
 ##' 
 autoplot.predRL <- function(object,
                             points = c("none", "p"),
@@ -115,7 +118,9 @@ autoplot.predRL <- function(object,
 ##' concave).
 ##'
 ##' @seealso \code{\link{autoplot.predRL}}.
-##' 
+##'
+##' @method autolayer predRL
+##' @export
 autolayer.predRL <- function(object,
                              aes = FALSE,
                              ...) {
@@ -161,6 +166,9 @@ autolayer.predRL <- function(object,
 ##' @return An object of class \code{"gg"} inheriting from
 ##' \code{"ggplot"}.
 ##'
+##' @method autoplot predRLList
+##' @export
+##' 
 ##' @examples
 ##' prior <- set_prior(prior = "flatflat", model = "gev")
 ##' post <- rpost_rcpp(n = 10000, model = "gev", prior = prior,

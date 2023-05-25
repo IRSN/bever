@@ -3,7 +3,7 @@
 \name{autoplot.poisGPBayes0}
 \alias{autoplot.poisGPBayes0}
 \title{\code{autoplot} Method for the \code{"poisGPBayes"} S3
-Class}
+    Class}
 \usage{
 \method{autoplot}{poisGPBayes0}(object,
          which = c("RL", "pp"),
@@ -28,8 +28,8 @@ inference results for a Poisson-GP model.}
 }
 \value{
 An object with class \code{"gg"} inheriting from
-\code{"ggplot"} which is typically used through the \code{print}
-method.
+    \code{"ggplot"} which is typically used through the
+    \code{print} method.
 }
 \description{
 Autoplot an object with call \code{"poisGPBayes"}.

@@ -29,6 +29,8 @@
 ##'
 ##' @return An object with class \code{"poisGPBayes0"} inheriting from
 ##' \code{"Bayes0"}.
+##'
+##' @export
 ##' 
 as.poisGPBayes0 <- function(object, ...) {
     UseMethod("as.poisGPBayes0", object)

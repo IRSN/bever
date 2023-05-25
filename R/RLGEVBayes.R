@@ -20,6 +20,9 @@
 ##'
 ##' @param ... Not used yet.
 ##'
+##' @method RL GEVBayes0
+##' @export
+##'
 ##' @return An object with class \code{"RL.GEVBayes"} inheriting from
 ##' \code{"data.frame"}. 
 ##' \itemize{

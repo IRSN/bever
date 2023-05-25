@@ -21,6 +21,32 @@ qCGPD(p, loc = 0.0, scale = 1.0, shape = 0.0,
 
 rCGPD(n, loc = 0.0, scale = 1.0, shape = 0.0,
       scaleN, shapeN, EN, IDN)
+
+pCGPD(
+  q,
+  loc = 0,
+  scale = 1,
+  shape = 0,
+  scaleN,
+  shapeN,
+  EN,
+  IDN,
+  lower.tail = TRUE
+)
+
+qCGPD(
+  p,
+  loc = 0,
+  scale = 1,
+  shape = 0,
+  scaleN,
+  shapeN,
+  EN,
+  IDN,
+  lower.tail = TRUE
+)
+
+rCGPD(n, loc = 0, scale = 1, shape = 0, scaleN, shapeN, EN, IDN)
 }
 \arguments{
 \item{x, q}{Vector of quantiles.}
@@ -48,12 +74,12 @@ provides an alternative parameterisation for the \eqn{N} part.}
 \item{log}{Logical; if \code{TRUE}, densities \code{p} are
 returned as \code{log(p)}.}
 
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are
+P[X <= x], otherwise, P[X > x].}
+
 \item{p}{Vector of probabilities.}
 
 \item{n}{Sample size.}
-
-\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are
-P[X <= x], otherwise, P[X > x].}
 }
 \value{
 A numeric vector with length equal to the length of the

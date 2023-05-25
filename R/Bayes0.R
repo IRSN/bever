@@ -21,6 +21,9 @@
 ##' contains marginal medians, while the posterior mode (or MAP) is
 ##' the joint mode. It may not be available in which case the
 ##' corresponding elements will be \code{NA}.
+##'
+##' @method coef Bayes0
+##' @export
 ##' 
 coef.Bayes0 <- function(object,
                            type = c("all", "mean", "median", "mode"),
@@ -53,11 +56,16 @@ coef.Bayes0 <- function(object,
 ##' @param ... Not used yet.
 ##' 
 ##' @return A covariance matrix, usually of size 3.
+##'
+##' @method vcov Bayes0
+##' @export
 ##' 
 vcov.Bayes0 <- function(object, ...) {
     object$covPost
 }
 
+##' @method summary Bayes0
+##' @export
 summary.Bayes0 <- function(object, ...) {
     
     ans <- object
@@ -68,6 +76,9 @@ summary.Bayes0 <- function(object, ...) {
     
 }
 
+##' @method print summary.Bayes0
+##' @export
+##' 
 print.summary.Bayes0 <- function(x, ...) {
     
     cat(sprintf("%s Model Bayesian Inference\n", x$model))
@@ -96,6 +107,8 @@ print.summary.Bayes0 <- function(x, ...) {
     cat(sprintf("%s\n", x$comment))
 }
 
+##' @method print Bayes0
+##' @export
 print.Bayes0 <- function(x, ...) {
     print(summary(x))
 }

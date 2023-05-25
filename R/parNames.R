@@ -65,6 +65,9 @@
 ##' 
 ##' }
 ##'
+##' @importFrom Matrix invPerm
+##' @export
+##' 
 ##' @examples
 ##' checkParNames(parNames = c("sigma", "mu", "xi"), model = "GEV")
 ##' checkParNames(parNames = c("sigma", "xi"), model = "GEV", all = FALSE)

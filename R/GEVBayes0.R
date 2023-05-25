@@ -12,22 +12,22 @@
 ##'           nMax = length(yMax)) 
 ##' 
 ##' @param MCMC An object that can be coerced into a matrix containing
-##' the MCMC iterates. It should have the burnin period removed and be
-##' thinned if necessary.
+##'     the MCMC iterates. It should have the burnin period removed
+##'     and be thinned if necessary.
 ##'
 ##' @param blockDuration The block duration given as a single positive
-##' numeric value. The GEV distribution which parameters are sampled
-##' in \code{MCMC} refers to the maximum on a period with duration
-##' \code{blockDuration}.
+##'     numeric value. The GEV distribution which parameters are
+##'     sampled in \code{MCMC} refers to the maximum on a period with
+##'     duration \code{blockDuration}.
 ##' 
 ##' @param MAP An optional vector of Maximum A Posteriori for the
-##' parameter vector. Should be named with names matching the colnames
-##' of \code{MCMC}.
+##'     parameter vector. Should be named with names matching the
+##'     colnames of \code{MCMC}.
 ##'
 ##' @param yMax An optional vector of observations.
 ##'
 ##' @param nMax An optional number of observations. Useful only when
-##' \code{yMax} is not given.
+##'     \code{yMax} is not given.
 ##'
 ## @param potData an object of class \code{"potData"} describing the
 ## data that have been used to produce the MCMC iterates. This object
@@ -35,20 +35,22 @@
 ## \code{\link[potomax]{potData}}.
 ##' 
 ##' @return An object with class \code{"GEVBayes0"} inheriting from
-##' \code{"Bayes0"}. This object can be used to produce RL plots.
+##'     \code{"Bayes0"}. This object can be used to produce RL plots.
 ##'
 ##' @seealso \code{\link{RL}} method to generate a data frame of
-##' "classical" return levels (as shown on a classical RL plot),
-##' \code{\link{predict.GEVBayes0}} to generate a data frame of
-##' predictive return levels (as shown on a predictive RL plot).
+##'     "classical" return levels (as shown on a classical RL plot),
+##'     \code{\link{predict.GEVBayes0}} to generate a data frame of
+##'     predictive return levels (as shown on a predictive RL plot).
 ##'
 ##' @note The argument \code{yMax} is intended for the classical
-##' framework where block maxima are used corresponding to a constant
-##' block duration. This is equivalent to using the \code{potData}
-##' argument with the value
+##'     framework where block maxima are used corresponding to a
+##'     constant block duration. This is equivalent to using the
+##'     \code{potData} argument with the value
 ##'
 ##' \code{potData(MAX.data = as.list(yMax), MAX.effDuration =
 ##' rep(blockDuration, length(yMax))}.
+##'
+##' @export
 ##' 
 ##' @examples
 ##' require(revdbayes)
@@ -216,6 +218,8 @@ GEVBayes0 <- function(MCMC,
 ##'
 ##' @seealso \code{\link{GEVBayes0}}
 ##'
+##' @method predict GEVBayes0
+##' @export
 ##' 
 predict.GEVBayes0 <- function(object,
                               newDuration = 1.0,
@@ -256,9 +260,9 @@ predict.GEVBayes0 <- function(object,
 
         quant <- rep(NA, nProb)
         
-        ## ======================================================================
+        ## =====================================================================
         ## The posterior cumulative distribution function 
-        ## ======================================================================
+        ## =====================================================================
         FTilde <- function(q) {
             res <- rep(NA, length(q))
             for (i in seq_along(res)) {

@@ -2,7 +2,7 @@
 ##' Autoplot an object with call \code{"poisGPBayes"}.
 ##'
 ##' @title \code{autoplot} Method for the \code{"poisGPBayes"} S3
-##' Class
+##'     Class
 ##'
 ##' @method autoplot poisGPBayes0
 ##' 
@@ -15,7 +15,7 @@
 ##'          trace = 0, ...)
 ##' 
 ##' @param object An object with class \code{"poisGPBayes"} describing
-##' inference results for a Poisson-GP model.
+##'     inference results for a Poisson-GP model.
 ##' 
 ##' @param which The type of plot wanted.
 ##' 
@@ -28,8 +28,11 @@
 ##' @param ... Further arguments passed to \code{RL}.
 ##' 
 ##' @return An object with class \code{"gg"} inheriting from
-##' \code{"ggplot"} which is typically used through the \code{print}
-##' method.
+##'     \code{"ggplot"} which is typically used through the
+##'     \code{print} method.
+##'
+##' @method autoplot poisGPBayes0
+##' @export
 ##' 
 ##' @examples
 ##' ## ========================================================================
@@ -82,17 +85,19 @@ autoplot.poisGPBayes0 <- function(object,
             
             if (group == "block") {
                 gg <- gg + geom_point(data = df,
-                                      mapping = aes_string(x = "T", y = "x", group = "block",
+                                      mapping = aes_string(x = "T", y = "x",
+                                                           group = "block",
                                           ## linetype = NULL, ## fill = "block"
                                           ## colour = "block",
-                                          shape = "block"),
+                                                           shape = "block"),
                                       ...) 
             } else {
                 gg <- gg + geom_point(data = df,
-                                      mapping = aes_string(x = "T", y = "x", group = "source",
+                                      mapping = aes_string(x = "T", y = "x",
+                                                           group = "source",
                                           ## linetype = NULL, ## fill = "source"
                                           ## colour = "source",
-                                          shape = "source"),
+                                                           shape = "source"),
                                       ...)
             }
         }
@@ -129,19 +134,22 @@ autoplot.poisGPBayes0 <- function(object,
 ##' Return Levels and related inference results.
 ##'
 ##' @title \code{autoplot} Method for the \code{"RL.poisGPBayes"} S3
-##' Class
+##'     Class
 ##'
 ##' @param object An object with class \code{"RL.poisGPBayes"}
-##' describing Return Levels and related Bayesian inference results
-##' for a Poisson-GP model.
+##'     describing Return Levels and related Bayesian inference
+##'     results for a Poisson-GP model.
 ##' 
 ##' @param ... Further arguments passed to \code{RL}.
 ##' 
 ##' @return An object with class \code{"gg"} inheriting from
-##' \code{"ggplot"}, typically used through the \code{print} method.
+##'     \code{"ggplot"}, typically used through the \code{print}
+##'     method.
 ##'  
 ##' @seealso \code{\link{autoplot.poisGPBayes0}}.
-##' 
+##'
+##' @method autoplot RL.poisGPBayes
+##' @export
 autoplot.RL.poisGPBayes <- function(object, ... ) {
 
     ## avoid NOTEs on check

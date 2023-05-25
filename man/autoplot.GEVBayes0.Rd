@@ -2,8 +2,7 @@
 % Please edit documentation in R/ggplotGEV.R
 \name{autoplot.GEVBayes0}
 \alias{autoplot.GEVBayes0}
-\title{\code{autoplot} Method for the \code{"GEVBayes0"} S3
-Class}
+\title{\code{autoplot} Method for the \code{"GEVBayes0"} S3 Class}
 \usage{
 \method{autoplot}{GEVBayes0}(
   object,
@@ -27,20 +26,22 @@ plot to build. For now only the RL plot is available.}
 
 \item{points}{The plotting positions to use to show the points if
 the object has data shiipped with it. The value \code{"H"}
-corresponds to the \emph{H-points} or Nelson's plotting positions
-and the value \code{"p"} correponds to the \emph{p-points} of the
-\code{\link[stats]{ppoints}} function. See
-\code{\link[potomax]{RP.potData}} in the package \strong{potomax}.}
+corresponds to the \emph{H-points} or Nelson's plotting
+positions and the value \code{"p"} correponds to the
+\emph{p-points} of the \code{\link[stats]{ppoints}}
+function. See \code{\link[potomax]{RP.potData}} in the package
+\strong{potomax}.}
 
 \item{a}{Value of the argument \code{a} of the
 \code{\link[stats]{ppoints}} function if \code{points} is
 \code{"p"}. It will be ignored otherwise.}
 
 \item{xVar}{The variable to be mapped to the \eqn{x} axis. The
-value \code{"T"} corresponds to a period: a multiple of the block
-duration attached to the object. The value \code{"p"} corresponds
-to an exccedance probability related to the block duration. The
-relation between the two is simply \eqn{p = 1 / T}.}
+value \code{"T"} corresponds to a period: a multiple of the
+block duration attached to the object. The value \code{"p"}
+corresponds to an exccedance probability related to the block
+duration. The relation between the two is simply \eqn{p = 1 /
+T}.}
 
 \item{trace}{Integer level of verbosity.}
 
@@ -48,8 +49,8 @@ relation between the two is simply \eqn{p = 1 / T}.}
 }
 \value{
 An object with class \code{"gg"} inheriting from
-\code{"ggplot"} which is typically used through the \code{print}
-method.
+    \code{"ggplot"} which is typically used through the
+    \code{print} method.
 }
 \description{
 Autoplot an object with call \code{"GEVBayes0"}.

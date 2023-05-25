@@ -48,6 +48,8 @@
 ##' @seealso \code{\link[potomax]{poisGP}} for a comparable object with
 ##' frequentist inference results.
 ##'
+##' @export
+##' 
 ##' @examples
 ##' ## ========================================================================
 ##' ## Use the Garonne data from Renext
@@ -218,7 +220,9 @@ poisGPBayes <- function(data, threshold, effDuration,
 ##' \code{"poisGPBayes0"} contain named list with consistent naming
 ##' rules this method nearly only changes the class of the object. It
 ##' could be made to work in this way in the future.
-##' 
+##'
+##' @method as.poisGPBayes0 poisGPBayes
+##' @export
 as.poisGPBayes0.poisGPBayes <- function(object, ...) {
 
     poisGPBayes0(MCMC = object$MCMC,
@@ -257,24 +261,36 @@ as.poisGPBayes0.poisGPBayes <- function(object, ...) {
 ##' \code{"data.frame"}.
 ##'
 ##' @seealso \code{\link{predict.poisGPBayes0}}.
+##'
+##' @method predict poisGPBayes
+##'
+##' @method predict poisGPBayes
+##' @export
 ##' 
 predict.poisGPBayes <- function(object, ...) {
     predict(as.poisGPBayes0(object), ...)
 }
 
-
+##' @method coef poisGPBayes
+##' @export
 coef.poisGPBayes <- function(object, ...) {
     coef.Bayes0(object, ...)
 }
 
+##' @method vcov poisGPBayes
+##' @export
 vcov.poisGPBayes <- function(object, ...) {
     vcov.Bayes0(object, ...)
 }
 
+##' @method summary poisGPBayes
+##' @export
 summary.poisGPBayes <- function(object, ...) {
     summary(as.poisGPBayes0(object), ...)
 }
 
+##' @method autoplot poisGPBayes
+##' @export
 autoplot.poisGPBayes <- function(object,
                                  which = "RL",
                                  level = 0.70,

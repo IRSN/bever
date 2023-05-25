@@ -90,6 +90,9 @@
 ##'  
 ##' Yves Deville (2019)  "Bayesian Return Levels in Extreme-Value Analysis"
 ##' \emph{IRSN technical report}.
+##'
+##' @export
+##' @rdname CGPD
 ##' 
 ##' @examples
 ##' set.seed(1)
@@ -153,14 +156,18 @@ dCGPD <- function(x, loc = 0.0, scale = 1.0, shape = 0.0,
     }
     ## this can be improved!!!
     if (any(!ind)) {
-        SY <- nieve::pGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind], lower.tail = FALSE)
+        SY <- nieve::pGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind],
+                           lower.tail = FALSE)
         fY <- nieve::dGPD2(x1[!ind], scale = scale[!ind], shape = shape[!ind])
-        res[!ind] <- nieve::dGPD2(SY, scale = scaleN[!ind], shape = shapeN[!ind]) * fY
+        res[!ind] <- nieve::dGPD2(SY, scale = scaleN[!ind],
+                                  shape = shapeN[!ind]) * fY
         if (log) res[!ind] <- log(res[!ind])
     }
     res
 }
 
+##' @rdname CGPD
+##' @export
 pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN, lower.tail = TRUE) {
@@ -207,6 +214,8 @@ pCGPD <- function(q, loc = 0.0, scale = 1.0, shape = 0.0,
     
 }
 
+##' @rdname CGPD
+##' @export
 qCGPD <- function(p, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN, lower.tail = TRUE) {
@@ -250,6 +259,8 @@ qCGPD <- function(p, loc = 0.0, scale = 1.0, shape = 0.0,
 
 }
 
+##' @rdname CGPD
+##' @export
 rCGPD <- function(n, loc = 0.0, scale = 1.0, shape = 0.0,
                   scaleN, shapeN,
                   EN, IDN) {
