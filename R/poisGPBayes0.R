@@ -367,6 +367,9 @@ poisGPBayes0 <- function(MCMC, threshold,
 ##' @seealso \code{\link[revdbayes]{predict.evpost}} in the
 ##' \strong{revdbayes} package , and the documentation of the creator
 ##' \code{\link{poisGPBayes0}}.
+##'
+##' @method predict poisGPBayes0
+##' @export
 ##' 
 ##' @return A data frame with the following columns
 ##' \item{NewDuration}{
