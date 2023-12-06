@@ -9,6 +9,7 @@ Description: Collection of functions to cope with Bayes Extreme-Value models
     with various parameterisations. 
 License: GPL-3
 Depends: nieve (>= 0.1.2), potomax (>= 0.1.2), nloptr, revdbayes, ggplot2
+Remotes: github::IRSN/potomax
 Imports: Matrix, scales, dplyr, tidyr, coda
 Suggests: Renext (>= 3.1-2), testthat, numDeriv, knitr, rmarkdown, ismev
 Encoding: UTF-8
