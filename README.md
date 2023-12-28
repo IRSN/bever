@@ -1,21 +1,21 @@
-THe bever Package
+R Package bever
 ================
 Yves Deville
 2023-05-22
 
 # Description
 
-The **bever** package is a R package funded by IRSN/Behrig.
+**bever** is a R package funded by IRSN/Behrig.
 
 This package is devoted to some Bayesian approaches in Extreme Value
-(EV) modelling, with focus on Markov Chain Monte-Carlo. The package does
-not implement by itself the Bayesian estimation or inference of any EV
-model. These tasks are left to the **revdbayes** package or to some
-other MCMC sampler as can be implemented by using **JAGS** or **Stan**.
-The **bever** package aims at producing some classical results or plots
-such as Return Level tables or plots. Its main goal is to allow a
-comparison of the frequentist and Bayesian inference methods when
-applied to EV models.
+(EV) modelling, with focus on Markov Chain Monte-Carlo inference. The
+package does not implement by itself the Bayesian estimation or the
+inference of any EV model. These tasks are left to the **revdbayes**
+package or to some other MCMC sampler as can be implemented by using
+**JAGS** or **Stan**. The **bever** package aims at producing some
+classical results or plots such as Return Level tables or plots. Its
+main goal is to allow a comparison of the frequentist and Bayesian
+inference methods when applied to EV models.
 
 The name **bever** relates to **B**ayes **E**xtreme-**V**alue. In some
 modern or ancient European languages, the word relates to the *river*
@@ -35,7 +35,7 @@ This package is still in its early stage of development
   transformation of plotting positions in “Renext style” to use them in
   “block style”.
 
-# INSTALLATION
+# Installation
 
 ## Using the *remotes* package
 
@@ -43,17 +43,16 @@ In an R session use
 
 ``` r
 library(remotes)
-install_github("IRSN/bever", dependencies = TRUE, auth_token = myToken)
+install_github("IRSN/bever", dependencies = TRUE)
 ```
 
-where `myToken` is *your* GitHub token. This should install the package
-and make it ready to use.
+This should install the package and make it ready to use.
 
 Mind that by default this does not build the vignette shipped with the
 package (long-form documentation). To build the vignette, use instead
 
 ``` r
-install_github("IRSN/bever", dependencies = TRUE, auth_token = myToken, build_vignettes = TRUE)
+install_github("IRSN/bever", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
 The installation will then take a longer time but the vignette will be
